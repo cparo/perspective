@@ -32,7 +32,6 @@ var (
 	minTime               int
 	maxTime               int
 	xGrid                 int
-	xIncrement            int
 	yLog2                 float64
 	width                 int
 	height                int
@@ -173,14 +172,6 @@ func main() {
 		"x-grid",
 		0,
 		"Number of divisions to be separated with vertical grid lines.")
-
-	// Default to fifteen minutes per pixel on the x axis. No effect on
-	// conversion of CSV files to binary log format.
-	flag.IntVar(
-		&xIncrement,
-		"window-seconds",
-		15*60,
-		"Seconds per pixel on the x axis.")
 
 	// Default to covering a power of two seconds run-time for every 16 pixels
 	// on the y axis. No effect on conversion of CSV files to binary log format.
