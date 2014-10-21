@@ -63,6 +63,17 @@ func drawYGridLine(vis *image.RGBA, y int) {
 	}
 }
 
+// Utility function get getting a shade of red to represent a class of failures
+// in a stack representing multiple failure types.
+func getErrorStackColor(layer int, layers int) color.RGBA {
+	v := float64(layer) * 255 / float64(layers)
+	return color.RGBA{
+		uint8(127 + v/2),
+		uint8(11 + v*2/3),
+		uint8(11 + v*2/3),
+		opaque}
+}
+
 // Utility function for setting up a visualization canvas.
 func initializeVisualization(width int, height int) *image.RGBA {
 	vis := image.NewRGBA(image.Rect(0, 0, width, height))
