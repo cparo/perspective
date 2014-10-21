@@ -144,7 +144,7 @@ func generateScatterVisualization(iPath string, oPath string) {
 
 	binReader := bufio.NewReader(iFile)
 
-	scatter := perspective.NewScatter(
+	v := perspective.NewScatter(
 		width,
 		height,
 		minTime,
@@ -163,7 +163,7 @@ func generateScatterVisualization(iPath string, oPath string) {
 		}
 
 		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			scatter.Record(
+			v.Record(
 				perspective.EventDataPoint{
 					event.StartTime,
 					event.RunTime,
@@ -171,7 +171,7 @@ func generateScatterVisualization(iPath string, oPath string) {
 		}
 	}
 
-	png.Encode(oFile, scatter.Render())
+	png.Encode(oFile, v.Render())
 }
 
 func generateSweepVisualization(iPath string, oPath string) {
