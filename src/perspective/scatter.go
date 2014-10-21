@@ -36,11 +36,11 @@ func NewScatter(
 }
 
 // Record accepts an EventDataPoint and plots it onto the visualization.
-func (s *scatter) Record(e EventDataPoint) {
+func (v *scatter) Record(e EventDataPoint) {
 
 	start := float64(e.Start)
-	x := int(float64(s.w) * (start - s.tA) / (s.tΩ - s.tA))
-	y := s.h - int(s.yLog2*math.Log2(float64(e.Run)))
+	x := int(float64(v.w) * (start - v.tA) / (v.tΩ - v.tA))
+	y := v.h - int(v.yLog2*math.Log2(float64(e.Run)))
 
 	// Since recorded events may collide in space with other recorded points in
 	// this visualization, we use a color progression to indicate the density
@@ -48,48 +48,48 @@ func (s *scatter) Record(e EventDataPoint) {
 	// take into account the existing color of the point on the canvas to which
 	// the event will be plotted and calculate its new color as a function of
 	// its existing color.
-	r16, g16, b16, _ := s.vis.At(x, y).RGBA()
+	r16, g16, b16, _ := v.vis.At(x, y).RGBA()
 	if e.Status == 0 {
 		// We desturate success colors both for aesthetics and because this
 		// allows them an additional range of visual differentiation (from
 		// bright blue to white) beyond their normal clipping point in the blue
 		// band.
-		r16 = uint32(math.Min(maxC16, float64(r16)+maxC16/s.colors/4))
-		g16 = uint32(math.Min(maxC16, float64(g16)+maxC16/s.colors/4))
-		b16 = uint32(math.Min(maxC16, float64(b16)+maxC16/s.colors))
+		r16 = uint32(math.Min(maxC16, float64(r16)+maxC16/v.colors/4))
+		g16 = uint32(math.Min(maxC16, float64(g16)+maxC16/v.colors/4))
+		b16 = uint32(math.Min(maxC16, float64(b16)+maxC16/v.colors))
 	} else {
 		// Failures are not desaturated to help make them more visible and to
 		// prevent a dense cluster of failures from looking like a dense cluster
 		// of successes.
-		r16 = uint32(math.Min(maxC16, float64(r16)+maxC16/s.colors))
+		r16 = uint32(math.Min(maxC16, float64(r16)+maxC16/v.colors))
 	}
-	plot(s.vis, x, y, r16, g16, b16)
+	plot(v.vis, x, y, r16, g16, b16)
 }
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (s *scatter) Render() *image.RGBA {
-	return s.vis
+func (v *scatter) Render() *image.RGBA {
+	return v.vis
 }
 
-func (s *scatter) drawGrid(xGrid int) *scatter {
+func (v *scatter) drawGrid(xGrid int) *scatter {
 
 	// Draw vertical grid lines, if vertical divisions were specified
 	if xGrid > 0 {
-		for x := 0; x < s.w; x = x + s.w/xGrid {
-			drawXGridLine(s.vis, x)
+		for x := 0; x < v.w; x = x + v.w/xGrid {
+			drawXGridLine(v.vis, x)
 		}
 	}
 
 	// Draw horizontal grid lines on each doubling of the run time in seconds
-	for y := s.h; y > 0; y = y - int(float64(s.h)/s.yLog2) {
-		drawYGridLine(s.vis, y)
+	for y := v.h; y > 0; y = y - int(float64(v.h)/v.yLog2) {
+		drawYGridLine(v.vis, y)
 	}
 
 	// Draw a line up top, for the sake of tidy appearance
-	drawYGridLine(s.vis, 0)
+	drawYGridLine(v.vis, 0)
 
 	// Return the scatter visualization struct, so this can be conveniently
 	// used in the visualization's constructor.
-	return s
+	return v
 }
