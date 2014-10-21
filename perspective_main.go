@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"image"
 	"image/color"
@@ -132,6 +133,42 @@ func initializeVisualization() *image.RGBA {
 	background := color.RGBA{33, 33, 33, 255}
 	draw.Draw(vis, vis.Bounds(), &image.Uniform{background}, image.ZP, draw.Src)
 	return vis
+}
+
+func generateScatterVisualization(iPath string, oPath string) {
+
+	iFile, oFile := openFiles(iPath, oPath)
+
+	binReader := bufio.NewReader(iFile)
+
+	scatter := perspective.NewScatter(
+		width,
+		height,
+		minTime,
+		maxTime,
+		yLog2,
+		colorSteps,
+		xGrid)
+
+	for {
+
+		var event eventData
+		err := binary.Read(binReader, binary.LittleEndian, &event)
+
+		if atEOF(err, "Error reading event data from binary log.") {
+			break
+		}
+
+		if eventFilter(int(event.StartTime), int(event.EventType)) {
+			scatter.Record(
+				perspective.EventDataPoint{
+					event.StartTime,
+					event.RunTime,
+					event.Status})
+		}
+	}
+
+	png.Encode(oFile, scatter.Render())
 }
 
 func main() {
