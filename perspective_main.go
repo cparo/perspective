@@ -326,6 +326,35 @@ func generateSweepVisualization(iPath string, oPath string) {
 	png.Encode(oFile, v.Render())
 }
 
+func generateWaveVisualization(iPath string, oPath string) {
+
+	iFile, oFile := openFiles(iPath, oPath)
+
+	binReader := bufio.NewReader(iFile)
+
+	v := perspective.NewWave(width, height, minTime, maxTime)
+
+	for {
+
+		var event eventData
+		err := binary.Read(binReader, binary.LittleEndian, &event)
+
+		if atEOF(err, "Error reading event data from binary log.") {
+			break
+		}
+
+		if eventFilter(int(event.StartTime), int(event.EventType)) {
+			v.Record(
+				perspective.EventDataPoint{
+					event.StartTime,
+					event.RunTime,
+					event.Status})
+		}
+	}
+
+	png.Encode(oFile, v.Render())
+}
+
 func main() {
 
 	// Default to no error reason coding. Applies only to the conversion of CSV
