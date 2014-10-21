@@ -144,7 +144,7 @@ func generateHistogramVisualization(iPath string, oPath string) {
 
 	binReader := bufio.NewReader(iFile)
 
-	v := perspective.NewHistogram(height, width, yLog2)
+	v := perspective.NewHistogram(width, height, yLog2)
 
 	for {
 
