@@ -293,8 +293,6 @@ func main() {
 
 	if action == "csv-convert" {
 		convertCommaSeparatedToBinary(inputFilePath, outputFilePath)
-	} else if action == "vis-sweep" {
-		generateSweepVisualization(inputFilePath, outputFilePath)
 	} else if action == "vis-error-stack" {
 		generateErrorStackVisualization(inputFilePath, outputFilePath)
 	} else if action == "vis-histogram" {
@@ -305,6 +303,8 @@ func main() {
 		generateScatterVisualization(inputFilePath, outputFilePath)
 	} else if action == "vis-status-stack" {
 		generateStatusStackVisualization(inputFilePath, outputFilePath)
+	} else if action == "vis-sweep" {
+		generateSweepVisualization(inputFilePath, outputFilePath)
 	} else if action == "vis-wave" {
 		generateWaveVisualization(inputFilePath, outputFilePath)
 	} else if action == "vis-wave-sorted" {
