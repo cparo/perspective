@@ -35,7 +35,7 @@ func NewScatter(
 		float64(colorSteps)}).drawGrid(xGrid)
 }
 
-// Record accepts an EventDataPoint and plots it onto the visualization
+// Record accepts an EventDataPoint and plots it onto the visualization.
 func (s *scatter) Record(e EventDataPoint) {
 
 	start := float64(e.Start)
