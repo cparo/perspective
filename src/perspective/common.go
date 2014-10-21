@@ -45,6 +45,7 @@ func c8(r16 uint32, g16 uint32, b16 uint32) color.RGBA {
 		opaque}
 }
 
+// Utility function to draw a vertical grid line at the specified x position.
 func drawXGridLine(vis *image.RGBA, x int) {
 	c := color.RGBA{grid, grid, grid, opaque}
 	h := vis.Bounds().Max.Y
@@ -53,6 +54,7 @@ func drawXGridLine(vis *image.RGBA, x int) {
 	}
 }
 
+// Utility function to draw a horizontal grid line as the specified y position.
 func drawYGridLine(vis *image.RGBA, y int) {
 	c := color.RGBA{grid, grid, grid, opaque}
 	w := vis.Bounds().Max.X
