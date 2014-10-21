@@ -7,11 +7,11 @@ import (
 )
 
 type histogram struct {
-	w     int         // Width of the visualization
-	h     int         // Height of the visualization
-	yLog2 float64     // Number of pixels over which elapsed times double
-	pass  []int       // Counts of successful events by x-axis position
-	fail  []int       // Counts of failed events by x-axis position
+	w     int     // Width of the visualization
+	h     int     // Height of the visualization
+	yLog2 float64 // Number of pixels over which elapsed times double
+	pass  []int   // Counts of successful events by x-axis position
+	fail  []int   // Counts of failed events by x-axis position
 }
 
 // NewHistogram returns a histogram-visualization generator.
