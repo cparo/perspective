@@ -5,9 +5,7 @@ import (
 	"math"
 )
 
-// TODO: Rename. This is a stupid name. Or at least a pretty vague one.
-//       Leaning toward "sweep" at the moment.
-type arc struct {
+type sweep struct {
 	w      int         // Width of the visualization
 	h      int         // Height of the visualization
 	vis    *image.RGBA // Visualization canvas
@@ -17,17 +15,17 @@ type arc struct {
 	colors float64     // Number of color steps before saturation
 }
 
-// NewArc returns an arc-visualization generator.
-func NewArc(
+// NewSweep returns an sweep-visualization generator.
+func NewSweep(
 	width int,
 	height int,
 	minTime int,
 	maxTime int,
 	yLog2 float64,
 	colorSteps int,
-	xGrid int) *arc {
+	xGrid int) *sweep {
 
-	return (&arc{
+	return (&sweep{
 		width,
 		height,
 		initializeVisualization(width, height),
@@ -38,7 +36,7 @@ func NewArc(
 }
 
 // Record accepts an EventDataPoint and plots it onto the visualization.
-func (v *arc) Record(e EventDataPoint) {
+func (v *sweep) Record(e EventDataPoint) {
 	tMin := float64(e.Start)
 	tMax := float64(e.Start + e.Run)
 	y := v.h / 2
@@ -64,11 +62,11 @@ func (v *arc) Record(e EventDataPoint) {
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (v *arc) Render() *image.RGBA {
+func (v *sweep) Render() *image.RGBA {
 	return v.vis
 }
 
-func (v *arc) drawGrid(xGrid int) *arc {
+func (v *sweep) drawGrid(xGrid int) *sweep {
 
 	// Draw vertical grid lines, if vertical divisions were specified
 	if xGrid > 0 {
@@ -86,7 +84,7 @@ func (v *arc) drawGrid(xGrid int) *arc {
 	// Draw a line up top, for the sake of tidy appearance
 	drawYGridLine(v.vis, 0)
 
-	// Return the arc visualization struct, so this can be conveniently
+	// Return the seep visualization struct, so this can be conveniently
 	// used in the visualization's constructor.
 	return v
 }

@@ -138,13 +138,13 @@ func initializeVisualization() *image.RGBA {
 	return vis
 }
 
-func generateArcVisualization(iPath string, oPath string) {
+func generateSweepVisualization(iPath string, oPath string) {
 
 	iFile, oFile := openFiles(iPath, oPath)
 
 	binReader := bufio.NewReader(iFile)
 
-	arc := perspective.NewArc(
+	v := perspective.NewSweep(
 		width,
 		height,
 		minTime,
@@ -163,7 +163,7 @@ func generateArcVisualization(iPath string, oPath string) {
 		}
 
 		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			arc.Record(
+			v.Record(
 				perspective.EventDataPoint{
 					event.StartTime,
 					event.RunTime,
@@ -171,7 +171,7 @@ func generateArcVisualization(iPath string, oPath string) {
 		}
 	}
 
-	png.Encode(oFile, arc.Render())
+	png.Encode(oFile, v.Render())
 }
 
 func generateScatterVisualization(iPath string, oPath string) {
@@ -293,8 +293,8 @@ func main() {
 
 	if action == "csv-convert" {
 		convertCommaSeparatedToBinary(inputFilePath, outputFilePath)
-	} else if action == "vis-arc" {
-		generateArcVisualization(inputFilePath, outputFilePath)
+	} else if action == "vis-sweep" {
+		generateSweepVisualization(inputFilePath, outputFilePath)
 	} else if action == "vis-error-stack" {
 		generateErrorStackVisualization(inputFilePath, outputFilePath)
 	} else if action == "vis-histogram" {
