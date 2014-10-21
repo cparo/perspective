@@ -74,19 +74,19 @@ func (v *scatter) Render() *image.RGBA {
 
 func (v *scatter) drawGrid(xGrid int) *scatter {
 
-	// Draw vertical grid lines, if vertical divisions were specified
+	// Draw vertical grid lines, if vertical divisions were specified.
 	if xGrid > 0 {
-		for x := 0; x < v.w; x = x + v.w/xGrid {
+		for x := 0; x < v.w; x += v.w / xGrid {
 			drawXGridLine(v.vis, x)
 		}
 	}
 
-	// Draw horizontal grid lines on each doubling of the run time in seconds
-	for y := v.h; y > 0; y = y - int(float64(v.h)/v.yLog2) {
+	// Draw horizontal grid lines on each doubling of the run time in seconds.
+	for y := v.h; y > 0; y -= int(float64(v.h) / v.yLog2) {
 		drawYGridLine(v.vis, y)
 	}
 
-	// Draw a line up top, for the sake of tidy appearance
+	// Draw a line up top, for the sake of tidy appearance.
 	drawYGridLine(v.vis, 0)
 
 	// Return the scatter visualization struct, so this can be conveniently
