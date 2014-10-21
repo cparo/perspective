@@ -6,7 +6,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"math"
+	"perspective"
 )
 
 func drawScatterGrid(vis *image.RGBA) {
@@ -39,13 +39,16 @@ func generateScatterVisualization(iPath string, oPath string) {
 
 	binReader := bufio.NewReader(iFile)
 
-	vis := initializeVisualization()
-	drawScatterGrid(vis)
+	scatter := perspective.NewScatter(
+		width,
+		height,
+		minTime,
+		maxTime,
+		yLog2,
+		colorSteps,
+		xGrid)
 
 	for {
-
-		tA := float64(minTime) // Pre-cast lower limit of time range
-		tΩ := float64(maxTime) // Pre-cast upper limit of time range
 
 		var event eventData
 		err := binary.Read(binReader, binary.LittleEndian, &event)
@@ -55,30 +58,13 @@ func generateScatterVisualization(iPath string, oPath string) {
 		}
 
 		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			start := float64(event.StartTime)
-			x := int(float64(width) * (start - tA) / (tΩ - tA))
-			y := height - int(yLog2*math.Log2(float64(event.RunTime)))
-			r16, g16, b16, _ := vis.At(x, y).RGBA()
-			if event.Status == 0 {
-				// We desturate success colors in part for aesthetics and in
-				// part because this allows them an additional range of visual
-				// differentiation (from bright blue to white) beyond their
-				// normal clipping point in the blue band.
-				r16 = uint32(min(65535, int(r16)+65536/colorSteps/4))
-				g16 = uint32(min(65535, int(g16)+65536/colorSteps/4))
-				b16 = uint32(min(65535, int(b16)+65536/colorSteps))
-			} else {
-				// Errors are not desaturated to help make them more visible
-				// and to prevent a dense cluster of errors from looking like
-				// a dense cluster of successes.
-				r16 = uint32(min(65535, int(r16)+65536/colorSteps))
-			}
-			r8 := uint8(r16 >> 8)
-			g8 := uint8(g16 >> 8)
-			b8 := uint8(b16 >> 8)
-			vis.Set(x, y, color.RGBA{r8, g8, b8, 255})
+			scatter.Record(
+				perspective.EventDataPoint{
+					event.StartTime,
+					event.RunTime,
+					event.Status})
 		}
 	}
 
-	png.Encode(oFile, vis)
+	png.Encode(oFile, scatter.Render())
 }
