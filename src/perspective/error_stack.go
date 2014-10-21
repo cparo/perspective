@@ -22,8 +22,9 @@ func (v *errorStack) Record(e EventDataPoint) {
 	for int(e.Status)+1 > len(v.n) {
 		v.n[int16(len(v.n))] = 0
 	}
-	v.n[e.Status]++
+	// For this visualization, we don't care about successful events.
 	if e.Status != 0 {
+		v.n[e.Status]++
 		v.σ++
 	}
 }
