@@ -46,7 +46,7 @@ func c8(r16 uint32, g16 uint32, b16 uint32) color.RGBA {
 }
 
 func drawXGridLine(vis *image.RGBA, x int) {
-	c := gridColor()
+	c := color.RGBA{grid, grid, grid, opaque}
 	h := vis.Bounds().Max.Y
 	for y := 0; y < h; y++ {
 		vis.Set(x, y, c)
@@ -54,15 +54,11 @@ func drawXGridLine(vis *image.RGBA, x int) {
 }
 
 func drawYGridLine(vis *image.RGBA, y int) {
-	c := gridColor()
+	c := color.RGBA{grid, grid, grid, opaque}
 	w := vis.Bounds().Max.X
 	for x := 0; x < w; x++ {
 		vis.Set(x, y, c)
 	}
-}
-
-func gridColor() color.RGBA {
-	return color.RGBA{grid, grid, grid, opaque}
 }
 
 // Utility function for setting up a visualization canvas.
