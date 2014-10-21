@@ -138,6 +138,35 @@ func initializeVisualization() *image.RGBA {
 	return vis
 }
 
+func generateHistogramVisualization(iPath string, oPath string) {
+
+	iFile, oFile := openFiles(iPath, oPath)
+
+	binReader := bufio.NewReader(iFile)
+
+	v := perspective.NewHistogram(height, width, yLog2)
+
+	for {
+
+		var event eventData
+		err := binary.Read(binReader, binary.LittleEndian, &event)
+
+		if atEOF(err, "Error reading event data from binary log.") {
+			break
+		}
+
+		if eventFilter(int(event.StartTime), int(event.EventType)) {
+			v.Record(
+				perspective.EventDataPoint{
+					event.StartTime,
+					event.RunTime,
+					event.Status})
+		}
+	}
+
+	png.Encode(oFile, v.Render())
+}
+
 func generateScatterVisualization(iPath string, oPath string) {
 
 	iFile, oFile := openFiles(iPath, oPath)

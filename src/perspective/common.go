@@ -71,6 +71,14 @@ func initializeVisualization(width int, height int) *image.RGBA {
 	return vis
 }
 
+// Utility function for returning the larger of two integers.
+func max(x int, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
 // Utility function for pixel-by-pixel drawing.
 func plot(vis *image.RGBA, x int, y int, r16 uint32, g16 uint32, b16 uint32) {
 	vis.Set(x, y, c8(r16, g16, b16))
