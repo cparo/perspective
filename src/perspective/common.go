@@ -21,6 +21,12 @@ type EventDataPoint struct {
 	Status int16 // Zero indicates success, non-zero indicates failure.
 }
 
+// Abstract interface for visualization generators.
+type Visualizer interface {
+	Record(EventDataPoint)
+	Render() *image.RGBA
+}
+
 // Utility function for converting 32-bit color components (with an unsigned
 // 16-bit range, as is returned by image.RGBA.At()) into a standard 8-bit RGBA
 // color value usable for image.RGBA.Set().
