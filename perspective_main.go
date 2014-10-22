@@ -194,13 +194,6 @@ func exitOnError(err error, message string) {
 	}
 }
 
-func min(x int, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
 func openFiles(iPath string, oPath string) (iFile *os.File, oFile *os.File) {
 
 	var err error
