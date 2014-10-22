@@ -15,7 +15,7 @@ type histogram struct {
 }
 
 // NewHistogram returns a histogram-visualization generator.
-func NewHistogram(width int, height int, yLog2 float64) *histogram {
+func NewHistogram(width int, height int, yLog2 float64) Visualizer {
 	return &histogram{
 		width,
 		height,

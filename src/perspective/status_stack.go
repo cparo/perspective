@@ -13,7 +13,7 @@ type statusStack struct {
 }
 
 // NewStatusStack returns a status-stack-visualization generator.
-func NewStatusStack(width int, height int) *statusStack {
+func NewStatusStack(width int, height int) Visualizer {
 	return &statusStack{width, height, make(map[int16]int), 0}
 }
 

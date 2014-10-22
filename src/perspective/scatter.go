@@ -23,7 +23,7 @@ func NewScatter(
 	maxTime int,
 	yLog2 float64,
 	colorSteps int,
-	xGrid int) *scatter {
+	xGrid int) Visualizer {
 
 	return (&scatter{
 		width,

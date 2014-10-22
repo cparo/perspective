@@ -18,11 +18,7 @@ type sortedWave struct {
 }
 
 // NewSortedWave returns a wave-sorted-visualization generator.
-func NewSortedWave(
-	width int,
-	height int,
-	minTime int,
-	maxTime int) *sortedWave {
+func NewSortedWave(width int, height int, minTime int, maxTime int) Visualizer {
 
 	return &sortedWave{
 		width,

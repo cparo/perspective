@@ -17,7 +17,7 @@ type wave struct {
 }
 
 // NewWave returns a wave-visualization generator.
-func NewWave(width int, height int, minTime int, maxTime int) *wave {
+func NewWave(width int, height int, minTime int, maxTime int) Visualizer {
 	return &wave{
 		width,
 		height,

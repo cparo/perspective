@@ -23,7 +23,7 @@ func NewSweep(
 	maxTime int,
 	yLog2 float64,
 	colorSteps int,
-	xGrid int) *sweep {
+	xGrid int) Visualizer {
 
 	return (&sweep{
 		width,

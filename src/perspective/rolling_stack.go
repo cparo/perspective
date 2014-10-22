@@ -19,7 +19,7 @@ func NewRollingStack(
 	width int,
 	height int,
 	minTime int,
-	maxTime int) *rollingStack {
+	maxTime int) Visualizer {
 
 	return &rollingStack{
 		width,

@@ -13,7 +13,7 @@ type errorStack struct {
 }
 
 // NewErrorStack returns an error-stack-visualization generator.
-func NewErrorStack(width int, height int) *errorStack {
+func NewErrorStack(width int, height int) Visualizer {
 	return &errorStack{width, height, make(map[int16]int), 0}
 }
 
