@@ -5,9 +5,6 @@ import (
 	"encoding/binary"
 	"encoding/csv"
 	"flag"
-	"image"
-	"image/color"
-	"image/draw"
 	"image/png"
 	"io"
 	"log"
@@ -220,14 +217,6 @@ func getErrorCode(errorReason string, errorFilters []*regexp.Regexp) int16 {
 	// 1, not 0, so in the example case of our having four error reason filters
 	// (including one for a blank error reason), this will be code 5, not 4.
 	return int16(i + 1)
-}
-
-func initializeVisualization() *image.RGBA {
-
-	vis := image.NewRGBA(image.Rect(0, 0, width, height))
-	background := color.RGBA{33, 33, 33, 255}
-	draw.Draw(vis, vis.Bounds(), &image.Uniform{background}, image.ZP, draw.Src)
-	return vis
 }
 
 func generateErrorStackVisualization(iPath string, oPath string) {
