@@ -22,7 +22,14 @@ var (
 	colorSteps     int
 )
 
-func convertCommaSeparatedToBinary(iPath string, oPath string) {
+// Variables for fixed-position command-line arguments.
+var (
+	action string // Indication of what type of visualization to generate.
+	iPath  string // Filesystem path for input
+	oPath  string // Filesystem path for output
+)
+
+func convertCommaSeparatedToBinary() {
 	feeds.ConvertCSVToBinary(
 		iPath,
 		oPath,
@@ -32,22 +39,22 @@ func convertCommaSeparatedToBinary(iPath string, oPath string) {
 		errorClassConf)
 }
 
-func generateErrorStackVisualization(iPath string, oPath string) {
+func generateErrorStackVisualization() {
 	v := perspective.NewErrorStack(width, height)
 	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
-func generateHistogramVisualization(iPath string, oPath string) {
+func generateHistogramVisualization() {
 	v := perspective.NewHistogram(width, height, yLog2)
 	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
-func generateRollingStackVisualization(iPath string, oPath string) {
+func generateRollingStackVisualization() {
 	v := perspective.NewRollingStack(width, height, minTime, maxTime)
 	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
-func generateScatterVisualization(iPath string, oPath string) {
+func generateScatterVisualization() {
 	v := perspective.NewScatter(
 		width,
 		height,
@@ -59,17 +66,17 @@ func generateScatterVisualization(iPath string, oPath string) {
 	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
-func generateSortedWaveVisualization(iPath string, oPath string) {
+func generateSortedWaveVisualization() {
 	v := perspective.NewSortedWave(width, height, minTime, maxTime)
 	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
-func generateStatusStackVisualization(iPath string, oPath string) {
+func generateStatusStackVisualization() {
 	v := perspective.NewStatusStack(width, height)
 	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
-func generateSweepVisualization(iPath string, oPath string) {
+func generateSweepVisualization() {
 	v := perspective.NewSweep(
 		width,
 		height,
@@ -81,7 +88,7 @@ func generateSweepVisualization(iPath string, oPath string) {
 	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
-func generateWaveVisualization(iPath string, oPath string) {
+func generateWaveVisualization() {
 	v := perspective.NewWave(width, height, minTime, maxTime)
 	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
@@ -161,30 +168,28 @@ func main() {
 		os.Exit(1)
 	}
 
-	var (
-		action         = flag.Arg(0)
-		inputFilePath  = flag.Arg(1)
-		outputFilePath = flag.Arg(2)
-	)
+	action = flag.Arg(0)
+	iPath = flag.Arg(1)
+	oPath = flag.Arg(2)
 
 	if action == "csv-convert" {
-		convertCommaSeparatedToBinary(inputFilePath, outputFilePath)
+		convertCommaSeparatedToBinary()
 	} else if action == "vis-error-stack" {
-		generateErrorStackVisualization(inputFilePath, outputFilePath)
+		generateErrorStackVisualization()
 	} else if action == "vis-histogram" {
-		generateHistogramVisualization(inputFilePath, outputFilePath)
+		generateHistogramVisualization()
 	} else if action == "vis-rolling-stack" {
-		generateRollingStackVisualization(inputFilePath, outputFilePath)
+		generateRollingStackVisualization()
 	} else if action == "vis-scatter" {
-		generateScatterVisualization(inputFilePath, outputFilePath)
+		generateScatterVisualization()
 	} else if action == "vis-status-stack" {
-		generateStatusStackVisualization(inputFilePath, outputFilePath)
+		generateStatusStackVisualization()
 	} else if action == "vis-sweep" {
-		generateSweepVisualization(inputFilePath, outputFilePath)
+		generateSweepVisualization()
 	} else if action == "vis-wave" {
-		generateWaveVisualization(inputFilePath, outputFilePath)
+		generateWaveVisualization()
 	} else if action == "vis-wave-sorted" {
-		generateSortedWaveVisualization(inputFilePath, outputFilePath)
+		generateSortedWaveVisualization()
 	} else {
 		log.Println("Unrecognized action.")
 		os.Exit(1)
