@@ -220,98 +220,21 @@ func getErrorCode(errorReason string, errorFilters []*regexp.Regexp) int16 {
 }
 
 func generateErrorStackVisualization(iPath string, oPath string) {
-
-	iFile, oFile := openFiles(iPath, oPath)
-
-	binReader := bufio.NewReader(iFile)
-
 	v := perspective.NewErrorStack(width, height)
-
-	for {
-
-		var event eventData
-
-		err := binary.Read(binReader, binary.LittleEndian, &event)
-		if atEOF(err, "Error reading event data from binary log.") {
-			break
-		}
-
-		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			v.Record(
-				perspective.EventDataPoint{
-					event.StartTime,
-					event.RunTime,
-					event.Status})
-		}
-	}
-
-	png.Encode(oFile, v.Render())
+	generateVisualization(iPath, oPath, v)
 }
 
 func generateHistogramVisualization(iPath string, oPath string) {
-
-	iFile, oFile := openFiles(iPath, oPath)
-
-	binReader := bufio.NewReader(iFile)
-
 	v := perspective.NewHistogram(width, height, yLog2)
-
-	for {
-
-		var event eventData
-		err := binary.Read(binReader, binary.LittleEndian, &event)
-
-		if atEOF(err, "Error reading event data from binary log.") {
-			break
-		}
-
-		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			v.Record(
-				perspective.EventDataPoint{
-					event.StartTime,
-					event.RunTime,
-					event.Status})
-		}
-	}
-
-	png.Encode(oFile, v.Render())
+	generateVisualization(iPath, oPath, v)
 }
 
 func generateRollingStackVisualization(iPath string, oPath string) {
-
-	iFile, oFile := openFiles(iPath, oPath)
-
-	binReader := bufio.NewReader(iFile)
-
 	v := perspective.NewRollingStack(width, height, minTime, maxTime)
-
-	for {
-
-		var event eventData
-
-		err := binary.Read(binReader, binary.LittleEndian, &event)
-		if atEOF(err, "Error reading event data from binary log.") {
-			break
-		}
-
-		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			v.Record(
-				perspective.EventDataPoint{
-					event.StartTime,
-					event.RunTime,
-					event.Status})
-		}
-	}
-
-	png.Encode(oFile, v.Render())
+	generateVisualization(iPath, oPath, v)
 }
 
 func generateScatterVisualization(iPath string, oPath string) {
-
-	iFile, oFile := openFiles(iPath, oPath)
-
-	binReader := bufio.NewReader(iFile)
-
 	v := perspective.NewScatter(
 		width,
 		height,
@@ -320,92 +243,20 @@ func generateScatterVisualization(iPath string, oPath string) {
 		yLog2,
 		colorSteps,
 		xGrid)
-
-	for {
-
-		var event eventData
-		err := binary.Read(binReader, binary.LittleEndian, &event)
-
-		if atEOF(err, "Error reading event data from binary log.") {
-			break
-		}
-
-		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			v.Record(
-				perspective.EventDataPoint{
-					event.StartTime,
-					event.RunTime,
-					event.Status})
-		}
-	}
-
-	png.Encode(oFile, v.Render())
+	generateVisualization(iPath, oPath, v)
 }
 
 func generateSortedWaveVisualization(iPath string, oPath string) {
-
-	iFile, oFile := openFiles(iPath, oPath)
-
-	binReader := bufio.NewReader(iFile)
-
 	v := perspective.NewSortedWave(width, height, minTime, maxTime)
-
-	for {
-
-		var event eventData
-		err := binary.Read(binReader, binary.LittleEndian, &event)
-
-		if atEOF(err, "Error reading event data from binary log.") {
-			break
-		}
-
-		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			v.Record(
-				perspective.EventDataPoint{
-					event.StartTime,
-					event.RunTime,
-					event.Status})
-		}
-	}
-
-	png.Encode(oFile, v.Render())
+	generateVisualization(iPath, oPath, v)
 }
 
 func generateStatusStackVisualization(iPath string, oPath string) {
-
-	iFile, oFile := openFiles(iPath, oPath)
-
-	binReader := bufio.NewReader(iFile)
-
 	v := perspective.NewStatusStack(width, height)
-
-	for {
-
-		var event eventData
-
-		err := binary.Read(binReader, binary.LittleEndian, &event)
-		if atEOF(err, "Error reading event data from binary log.") {
-			break
-		}
-
-		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			v.Record(
-				perspective.EventDataPoint{
-					event.StartTime,
-					event.RunTime,
-					event.Status})
-		}
-	}
-
-	png.Encode(oFile, v.Render())
+	generateVisualization(iPath, oPath, v)
 }
 
 func generateSweepVisualization(iPath string, oPath string) {
-
-	iFile, oFile := openFiles(iPath, oPath)
-
-	binReader := bufio.NewReader(iFile)
-
 	v := perspective.NewSweep(
 		width,
 		height,
@@ -414,35 +265,22 @@ func generateSweepVisualization(iPath string, oPath string) {
 		yLog2,
 		colorSteps,
 		xGrid)
-
-	for {
-
-		var event eventData
-		err := binary.Read(binReader, binary.LittleEndian, &event)
-
-		if atEOF(err, "Error reading event data from binary log.") {
-			break
-		}
-
-		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			v.Record(
-				perspective.EventDataPoint{
-					event.StartTime,
-					event.RunTime,
-					event.Status})
-		}
-	}
-
-	png.Encode(oFile, v.Render())
+	generateVisualization(iPath, oPath, v)
 }
 
 func generateWaveVisualization(iPath string, oPath string) {
+	v := perspective.NewWave(width, height, minTime, maxTime)
+	generateVisualization(iPath, oPath, v)
+}
+
+func generateVisualization(
+	iPath string,
+	oPath string,
+	v perspective.Visualizer) {
 
 	iFile, oFile := openFiles(iPath, oPath)
 
 	binReader := bufio.NewReader(iFile)
-
-	v := perspective.NewWave(width, height, minTime, maxTime)
 
 	for {
 
