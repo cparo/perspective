@@ -11,15 +11,15 @@ import (
 
 // Variables for command-line option flags.
 var (
-	errorReasonFilterConf string
-	typeFilter            int
-	minTime               int
-	maxTime               int
-	xGrid                 int
-	yLog2                 float64
-	width                 int
-	height                int
-	colorSteps            int
+	errorClassConf string
+	typeFilter     int
+	minTime        int
+	maxTime        int
+	xGrid          int
+	yLog2          float64
+	width          int
+	height         int
+	colorSteps     int
 )
 
 func convertCommaSeparatedToBinary(iPath string, oPath string) {
@@ -29,7 +29,7 @@ func convertCommaSeparatedToBinary(iPath string, oPath string) {
 		minTime,
 		maxTime,
 		typeFilter,
-		errorReasonFilterConf)
+		errorClassConf)
 }
 
 func generateErrorStackVisualization(iPath string, oPath string) {
@@ -91,7 +91,7 @@ func main() {
 	// Default to no error reason coding. Applies only to the conversion of CSV
 	// files to binary log format. TODO: Document filter conf format.
 	flag.StringVar(
-		&errorReasonFilterConf,
+		&errorClassConf,
 		"error-reason-filter",
 		"",
 		"Error reason filter congfiguration.")
