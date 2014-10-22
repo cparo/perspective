@@ -11,86 +11,66 @@ import (
 
 // Variables for command-line option flags.
 var (
-	errorClassConf string
-	typeFilter     int
-	minTime        int
-	maxTime        int
-	xGrid          int
-	yLog2          float64
-	width          int
-	height         int
-	colorSteps     int
+	errorClassConf string  // Optional conf file for error classification.
+	typeFilter     int     // Event type code to filter for, if this is > 0.
+	tA             int     // Lower limit of time range to be visualized.
+	tΩ             int     // Upper limit of time range to be visualized.
+	xGrid          int     // Number of horizontal grid divisions.
+	yLog2          float64 // Number of pixels over which elapsed times double.
+	w              int     // Visualization width, in pixels.
+	h              int     // Visualization height, in pixels.
+	colorSteps     int     // The number of color steps before saturation.
 )
 
 // Variables for fixed-position command-line arguments.
 var (
 	action string // Indication of what type of visualization to generate.
-	iPath  string // Filesystem path for input
-	oPath  string // Filesystem path for output
+	iPath  string // Filesystem path for input.
+	oPath  string // Filesystem path for output.
 )
 
 func convertCommaSeparatedToBinary() {
-	feeds.ConvertCSVToBinary(
-		iPath,
-		oPath,
-		minTime,
-		maxTime,
-		typeFilter,
-		errorClassConf)
+	feeds.ConvertCSVToBinary(iPath, oPath, tA, tΩ, typeFilter, errorClassConf)
 }
 
 func generateErrorStackVisualization() {
-	v := perspective.NewErrorStack(width, height)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
+	v := perspective.NewErrorStack(w, h)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, tΩ, tA, typeFilter, v)
 }
 
 func generateHistogramVisualization() {
-	v := perspective.NewHistogram(width, height, yLog2)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
+	v := perspective.NewHistogram(w, h, yLog2)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
 
 func generateRollingStackVisualization() {
-	v := perspective.NewRollingStack(width, height, minTime, maxTime)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
+	v := perspective.NewRollingStack(w, h, tA, tΩ)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
 
 func generateScatterVisualization() {
-	v := perspective.NewScatter(
-		width,
-		height,
-		minTime,
-		maxTime,
-		yLog2,
-		colorSteps,
-		xGrid)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
+	v := perspective.NewScatter(w, h, tΩ, tA, yLog2, colorSteps, xGrid)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
 
 func generateSortedWaveVisualization() {
-	v := perspective.NewSortedWave(width, height, minTime, maxTime)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
+	v := perspective.NewSortedWave(w, h, tA, tΩ)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
 
 func generateStatusStackVisualization() {
-	v := perspective.NewStatusStack(width, height)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
+	v := perspective.NewStatusStack(w, h)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
 
 func generateSweepVisualization() {
-	v := perspective.NewSweep(
-		width,
-		height,
-		minTime,
-		maxTime,
-		yLog2,
-		colorSteps,
-		xGrid)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
+	v := perspective.NewSweep(w, h, tA, tΩ, yLog2, colorSteps, xGrid)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
 
 func generateWaveVisualization() {
-	v := perspective.NewWave(width, height, minTime, maxTime)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
+	v := perspective.NewWave(w, h, tA, tΩ)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
 
 func main() {
@@ -112,14 +92,14 @@ func main() {
 
 	// Default to the beginning of the epoch.
 	flag.IntVar(
-		&minTime,
+		&tA,
 		"min-time",
 		0,
 		"Least recent time to show, expressed as seconds in Unix epoch time.")
 
 	// Default to now.
 	flag.IntVar(
-		&maxTime,
+		&tΩ,
 		"max-time",
 		int(time.Now().Unix()),
 		"Most recent time to show, expressed as seconds in Unix epoch time.")
@@ -142,14 +122,14 @@ func main() {
 
 	// Default to 256 pixels. May not apply for all graph types.
 	flag.IntVar(
-		&width,
+		&w,
 		"width",
 		256,
 		"Width of the rendered graph, in pixels.")
 
 	// Default to 128 pixels. May not apply for all graph types.
 	flag.IntVar(
-		&height,
+		&h,
 		"height",
 		128,
 		"Height of the rendered graph, in pixels.")
