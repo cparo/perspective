@@ -119,6 +119,6 @@ func (v *sortedWave) Record(e EventDataPoint) {
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (v *sortedWave) Render() *image.RGBA {
+func (v *sortedWave) Render() image.Image {
 	return v.vis
 }

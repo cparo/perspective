@@ -85,7 +85,7 @@ func (v *scatter) Record(e EventDataPoint) {
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (v *scatter) Render() *image.RGBA {
+func (v *scatter) Render() image.Image {
 	return v.vis
 }
 

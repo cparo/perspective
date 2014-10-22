@@ -97,7 +97,7 @@ func (v *sweep) Record(e EventDataPoint) {
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (v *sweep) Render() *image.RGBA {
+func (v *sweep) Render() image.Image {
 	return v.vis
 }
 

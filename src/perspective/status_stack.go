@@ -45,7 +45,7 @@ func (v *statusStack) Record(e EventDataPoint) {
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (v *statusStack) Render() *image.RGBA {
+func (v *statusStack) Render() image.Image {
 
 	// Initialize our image canvas.
 	vis := initializeVisualization(v.w, v.h)

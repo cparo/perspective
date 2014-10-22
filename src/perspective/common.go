@@ -41,7 +41,7 @@ type EventDataPoint struct {
 // Abstract interface for visualization generators.
 type Visualizer interface {
 	Record(EventDataPoint)
-	Render() *image.RGBA
+	Render() image.Image
 }
 
 // Utility function for converting 32-bit color components (with an unsigned

@@ -62,7 +62,7 @@ func (v *histogram) Record(e EventDataPoint) {
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (v *histogram) Render() *image.RGBA {
+func (v *histogram) Render() image.Image {
 
 	// Initialize our image canvas and grid.
 	vis := initializeVisualization(v.w, v.h)
