@@ -1,4 +1,4 @@
-package csv
+package feeds
 
 import (
 	"bufio"
@@ -25,7 +25,7 @@ type eventData struct {
 	Status    int16 // Zero indicates success, non-zero indicates failure.
 }
 
-func ConvertToBinary(
+func ConvertCSVToBinary(
 	iPath string,
 	oPath string,
 	minTime int,

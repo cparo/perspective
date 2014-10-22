@@ -9,7 +9,7 @@ import (
 	"log"
 	"os"
 	"perspective"
-	"perspective/csv"
+	"perspective/feeds"
 	"regexp"
 	"time"
 )
@@ -41,7 +41,7 @@ var (
 )
 
 func convertCommaSeparatedToBinary(iPath string, oPath string) {
-	csv.ConvertToBinary(
+	feeds.ConvertCSVToBinary(
 		iPath,
 		oPath,
 		minTime,
