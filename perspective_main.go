@@ -194,15 +194,6 @@ func exitOnError(err error, message string) {
 	}
 }
 
-func findHitCount(value uint8, cV []uint8) int {
-	for i := 0; i < len(cV); i++ {
-		if value == cV[i] {
-			return i
-		}
-	}
-	return 0
-}
-
 func max(x int, y int) int {
 	if x > y {
 		return x
