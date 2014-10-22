@@ -1,31 +1,13 @@
 package main
 
 import (
-	"bufio"
-	"encoding/binary"
 	"flag"
-	"image/png"
-	"io"
 	"log"
 	"os"
 	"perspective"
 	"perspective/feeds"
-	"regexp"
 	"time"
 )
-
-// This struct is written to pack neatly into a 64-byte line while still
-// accommodating any data we will realistically be pulling out of out event
-// database in the next couple of decades. This may not matter much for
-// performance, but it is pretty convenient for reading a hex dump of the
-// resulting binary event log format.
-type eventData struct {
-	EventID   int32 // Event ID as recorded in reference data source.
-	StartTime int32 // In seconds since the beginning of the Unix epoch.
-	RunTime   int32 // Event run time, in seconds.
-	EventType int16 // Event type ID as recorded in reference data source.
-	Status    int16 // Zero indicates success, non-zero indicates failure.
-}
 
 // Variables for command-line option flags.
 var (
@@ -50,76 +32,19 @@ func convertCommaSeparatedToBinary(iPath string, oPath string) {
 		errorReasonFilterConf)
 }
 
-func eventFilter(startTime int, eventType int) bool {
-	if minTime < startTime && maxTime > startTime {
-		if typeFilter < 0 || eventType == typeFilter {
-			return true
-		}
-	}
-	return false
-}
-
-func atEOF(err error, message string) bool {
-	if err != nil {
-		if err == io.EOF {
-			return true
-		}
-		log.Println(message)
-		log.Println(err)
-		os.Exit(1)
-	}
-	return false
-}
-
-func exitOnError(err error, message string) {
-	if err != nil {
-		log.Println(message)
-		log.Println(err)
-		os.Exit(1)
-	}
-}
-
-func openFiles(iPath string, oPath string) (iFile *os.File, oFile *os.File) {
-
-	var err error
-
-	iFile, err = os.Open(iPath)
-	exitOnError(err, "Failed to open input file for reading.")
-
-	oFile, err = os.Create(oPath)
-	exitOnError(err, "Failed to open output file for writing.")
-
-	return iFile, oFile
-}
-
-func getErrorCode(errorReason string, errorFilters []*regexp.Regexp) int16 {
-	var i int
-	for i = 0; i < len(errorFilters); i++ {
-		if errorFilters[i].MatchString(errorReason) {
-			return int16(i + 1)
-		}
-	}
-	// Implied "other" case, which will return a value one past the last value
-	// which should be associated with a filter, indicating that no filters
-	// matched the errorReason we were given. Note that the error codes start at
-	// 1, not 0, so in the example case of our having four error reason filters
-	// (including one for a blank error reason), this will be code 5, not 4.
-	return int16(i + 1)
-}
-
 func generateErrorStackVisualization(iPath string, oPath string) {
 	v := perspective.NewErrorStack(width, height)
-	generateVisualization(iPath, oPath, v)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
 func generateHistogramVisualization(iPath string, oPath string) {
 	v := perspective.NewHistogram(width, height, yLog2)
-	generateVisualization(iPath, oPath, v)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
 func generateRollingStackVisualization(iPath string, oPath string) {
 	v := perspective.NewRollingStack(width, height, minTime, maxTime)
-	generateVisualization(iPath, oPath, v)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
 func generateScatterVisualization(iPath string, oPath string) {
@@ -131,17 +56,17 @@ func generateScatterVisualization(iPath string, oPath string) {
 		yLog2,
 		colorSteps,
 		xGrid)
-	generateVisualization(iPath, oPath, v)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
 func generateSortedWaveVisualization(iPath string, oPath string) {
 	v := perspective.NewSortedWave(width, height, minTime, maxTime)
-	generateVisualization(iPath, oPath, v)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
 func generateStatusStackVisualization(iPath string, oPath string) {
 	v := perspective.NewStatusStack(width, height)
-	generateVisualization(iPath, oPath, v)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
 func generateSweepVisualization(iPath string, oPath string) {
@@ -153,42 +78,12 @@ func generateSweepVisualization(iPath string, oPath string) {
 		yLog2,
 		colorSteps,
 		xGrid)
-	generateVisualization(iPath, oPath, v)
+	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
 func generateWaveVisualization(iPath string, oPath string) {
 	v := perspective.NewWave(width, height, minTime, maxTime)
-	generateVisualization(iPath, oPath, v)
-}
-
-func generateVisualization(
-	iPath string,
-	oPath string,
-	v perspective.Visualizer) {
-
-	iFile, oFile := openFiles(iPath, oPath)
-
-	binReader := bufio.NewReader(iFile)
-
-	for {
-
-		var event eventData
-		err := binary.Read(binReader, binary.LittleEndian, &event)
-
-		if atEOF(err, "Error reading event data from binary log.") {
-			break
-		}
-
-		if eventFilter(int(event.StartTime), int(event.EventType)) {
-			v.Record(
-				perspective.EventDataPoint{
-					event.StartTime,
-					event.RunTime,
-					event.Status})
-		}
-	}
-
-	png.Encode(oFile, v.Render())
+	feeds.GeneratePNGFromBinLog(iPath, oPath, minTime, maxTime, typeFilter, v)
 }
 
 func main() {
