@@ -222,14 +222,6 @@ func getErrorCode(errorReason string, errorFilters []*regexp.Regexp) int16 {
 	return int16(i + 1)
 }
 
-func getErrorStackColor(layer int, layers int) color.RGBA {
-	v := float64(layer) * 255 / float64(layers)
-	r8 := uint8(127 + v/2)
-	g8 := uint8(11 + v*2/3)
-	b8 := uint8(11 + v*2/3)
-	return color.RGBA{r8, g8, b8, 255}
-}
-
 func initializeVisualization() *image.RGBA {
 
 	vis := image.NewRGBA(image.Rect(0, 0, width, height))
