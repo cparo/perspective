@@ -6,14 +6,14 @@ import (
 )
 
 type wave struct {
-	w    int              // Width of the visualization
-	h    int              // Height of the visualization
-	tA   float64          // Lower limit of time range to be visualized
-	tΩ   float64          // Upper limit of time range to be visualized
-	vis  *image.RGBA      // Visualization canvas
-	x    int              // Current x-position for recording events
-	p    []EventDataPoint // Passing event data points in current x-position
-	f    []EventDataPoint // Failing event data points in current x-position
+	w   int              // Width of the visualization
+	h   int              // Height of the visualization
+	tA  float64          // Lower limit of time range to be visualized
+	tΩ  float64          // Upper limit of time range to be visualized
+	vis *image.RGBA      // Visualization canvas
+	x   int              // Current x-position for recording events
+	p   []EventDataPoint // Passing event data points in current x-position
+	f   []EventDataPoint // Failing event data points in current x-position
 }
 
 // NewWave returns a wave-visualization generator.
