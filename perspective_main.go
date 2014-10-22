@@ -35,41 +35,45 @@ func convertCommaSeparatedToBinary() {
 
 func generateErrorStackVisualization() {
 	v := perspective.NewErrorStack(w, h)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, tΩ, tA, typeFilter, v)
+	generateVisualization(v)
 }
 
 func generateHistogramVisualization() {
 	v := perspective.NewHistogram(w, h, yLog2)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
+	generateVisualization(v)
 }
 
 func generateRollingStackVisualization() {
 	v := perspective.NewRollingStack(w, h, tA, tΩ)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
+	generateVisualization(v)
 }
 
 func generateScatterVisualization() {
 	v := perspective.NewScatter(w, h, tΩ, tA, yLog2, colorSteps, xGrid)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
+	generateVisualization(v)
 }
 
 func generateSortedWaveVisualization() {
 	v := perspective.NewSortedWave(w, h, tA, tΩ)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
+	generateVisualization(v)
 }
 
 func generateStatusStackVisualization() {
 	v := perspective.NewStatusStack(w, h)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
+	generateVisualization(v)
 }
 
 func generateSweepVisualization() {
 	v := perspective.NewSweep(w, h, tA, tΩ, yLog2, colorSteps, xGrid)
-	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
+	generateVisualization(v)
 }
 
 func generateWaveVisualization() {
 	v := perspective.NewWave(w, h, tA, tΩ)
+	generateVisualization(v)
+}
+
+func generateVisualization(v perspective.Visualizer) {
 	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
 
