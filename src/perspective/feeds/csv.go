@@ -62,7 +62,7 @@ func ConvertCSVToBinary(
 			if atEOF(err, "Error encountered consuming filter config.") {
 				break
 			}
-			// NOTE: We ignore and fields beyond the first here. They can be
+			// NOTE: We ignore any fields beyond the first here. They can be
 			//       parsed out elsewhere for purposes like correlating
 			//       human-friendly textual descriptions with the numeric codes
 			//       we assign to our output. Ignoring and such additional info
