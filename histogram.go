@@ -70,11 +70,11 @@ func (v *histogram) Render() image.Image {
 
 	// Find the highest point of the histogram to normalize the height of the
 	// masts.
-	maxCount := 0
+	maxCount := float64(0)
 	for x := 0; x < v.w; x++ {
-		maxCount = max(maxCount, v.pass[x]+v.fail[x])
+		maxCount = math.Max(maxCount, float64(v.pass[x]+v.fail[x]))
 	}
-	scale := float64(v.h) / float64(maxCount)
+	scale := float64(v.h) / maxCount
 
 	// Set up our pass and fail colors.
 	passColor := color.RGBA{83, 83, 191, 255}
