@@ -21,8 +21,8 @@ import (
 	"flag"
 	"log"
 	"os"
-	"perspective"
-	"perspective/feeds"
+	"github.com/cparo/perspective"
+	"github.com/cparo/perspective/feeds"
 	"time"
 )
 

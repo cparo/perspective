@@ -19,7 +19,7 @@ package feeds
 
 import (
 	"image/png"
-	"perspective"
+	"github.com/cparo/perspective"
 	"syscall"
 	"unsafe"
 )
