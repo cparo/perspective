@@ -30,11 +30,11 @@ import (
 // performance, but it is pretty convenient for reading a hex dump of the
 // resulting binary event log format.
 type eventData struct {
-	EventID   int32 // Event ID as recorded in reference data source.
-	StartTime int32 // In seconds since the beginning of the Unix epoch.
-	RunTime   int32 // Event run time, in seconds.
-	EventType int16 // Event type ID as recorded in reference data source.
-	Status    int16 // Zero indicates success, non-zero indicates failure.
+	ID     int32 // Event ID as recorded in reference data source.
+	Start  int32 // In seconds since the beginning of the Unix epoch.
+	Run    int32 // Event run time, in seconds.
+	Type   int16 // Event type ID as recorded in reference data source.
+	Status int16 // Zero indicates success, non-zero indicates failure.
 }
 
 // GeneratePNGFromBinLog reads a binary-log formatted event-data dump and
@@ -77,9 +77,8 @@ func GeneratePNGFromBinLog(
 	n := iSize / int(unsafe.Sizeof(eventData{}))
 	for i := 0; i < n; i++ {
 		e := events[i]
-		if eventFilter(int(e.StartTime), int(e.EventType), tA, tΩ, typeFilter) {
-			v.Record(
-				perspective.EventDataPoint{e.StartTime, e.RunTime, e.Status})
+		if eventFilter(int(e.Start), int(e.Type), tA, tΩ, typeFilter) {
+			v.Record(perspective.EventDataPoint{e.Start, e.Run, e.Status})
 		}
 	}
 

@@ -119,26 +119,26 @@ func ConvertCSVToBinary(
 
 		fieldValue, err = strconv.ParseInt(fields[1], 10, 16)
 		exitOnError(err, "Error encountered parsing event type.")
-		eventData.EventType = int16(fieldValue)
+		eventData.Type = int16(fieldValue)
 
 		fieldValue, err = strconv.ParseInt(fields[2], 10, 32)
 		exitOnError(err, "Error encountered parsing event start time.")
-		eventData.StartTime = int32(fieldValue)
+		eventData.Start = int32(fieldValue)
 
 		if eventFilter(
-			int(eventData.StartTime),
-			int(eventData.EventType),
+			int(eventData.Start),
+			int(eventData.Type),
 			minTime,
 			maxTime,
 			typeFilter) {
 
 			fieldValue, err = strconv.ParseInt(fields[0], 10, 32)
 			exitOnError(err, "Error encountered parsing event ID.")
-			eventData.EventID = int32(fieldValue)
+			eventData.ID = int32(fieldValue)
 
 			fieldValue, err = strconv.ParseInt(fields[3], 10, 32)
 			exitOnError(err, "Error encountered parsing event run time.")
-			eventData.RunTime = int32(fieldValue)
+			eventData.Run = int32(fieldValue)
 
 			fieldValue, err = strconv.ParseInt(fields[4], 10, 16)
 			exitOnError(err, "Error encountered parsing event status.")
