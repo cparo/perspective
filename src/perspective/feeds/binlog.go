@@ -18,10 +18,10 @@
 package feeds
 
 import (
-	"bufio"
-	"encoding/binary"
 	"image/png"
 	"perspective"
+	"syscall"
+	"unsafe"
 )
 
 // This struct is written to pack neatly into a 64-byte line while still
@@ -43,35 +43,43 @@ type eventData struct {
 func GeneratePNGFromBinLog(
 	iPath string,
 	oPath string,
-	minTime int,
-	maxTime int,
+	tA int,
+	tΩ int,
 	typeFilter int,
 	v perspective.Visualizer) {
 
 	iFile, oFile := openFiles(iPath, oPath)
 
-	binReader := bufio.NewReader(iFile)
+	iStat, err := iFile.Stat()
+	exitOnError(err, "Failed to stat input file.")
 
-	for {
+	iSize := int(iStat.Size())
 
-		var event eventData
-		err := binary.Read(binReader, binary.LittleEndian, &event)
+	binLog, err := syscall.Mmap(
+		int(iFile.Fd()),
+		0,
+		iSize,
+		syscall.PROT_READ,
+		syscall.MAP_PRIVATE)
+	exitOnError(err, "Failed to mmap input file.")
 
-		if atEOF(err, "Error reading event data from binary log.") {
-			break
-		}
-
-		if eventFilter(
-			int(event.StartTime),
-			int(event.EventType),
-			minTime,
-			maxTime,
-			typeFilter) {
+	// Using this mmap-and-cast method of parsing the input log instead of the
+	// more idiomatic use of Go's bufio and encoding/binary packages for reading
+	// the input log into eventData structs yields a sixfold improvement in run
+	// time and CPU cost in testing against a 45-MiB log of reference event
+	// data. When removing the actual rendering of graph data in a test run with
+	// each log-file reading implementation, the measured performance gain is
+	// 42-fold. The difference is 80-fold if we also remove the encoding of the
+	// blank image canvas to a png file. Which should help to illustrate the
+	// absurd cost of avoiding an "unsafe" method for reading a file which would
+	// be considered perfectly valid in traditional systems development.
+	events := *(*[]eventData)(unsafe.Pointer(&binLog))
+	n := iSize / int(unsafe.Sizeof(eventData{}))
+	for i := 0; i < n; i++ {
+		e := events[i]
+		if eventFilter(int(e.StartTime), int(e.EventType), tA, tΩ, typeFilter) {
 			v.Record(
-				perspective.EventDataPoint{
-					event.StartTime,
-					event.RunTime,
-					event.Status})
+				perspective.EventDataPoint{e.StartTime, e.RunTime, e.Status})
 		}
 	}
 
