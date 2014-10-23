@@ -93,11 +93,11 @@ func initializeVisualization(width int, height int) *image.RGBA {
 }
 
 // Utility function for returning the larger of two integers.
-func max(x int, y int) int {
-	if x > y {
-		return x
+func max(a int, b int) int {
+	if a > b {
+		return a
 	}
-	return y
+	return b
 }
 
 // Utility function for pixel-by-pixel drawing.
