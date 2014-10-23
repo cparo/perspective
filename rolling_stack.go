@@ -67,8 +67,11 @@ func (v *rollingStack) Render() image.Image {
 	vis := initializeVisualization(v.w, v.h)
 
 	// Draw the rolling stack, giving each failure type a different color and
-	// scaling the height of the visualization to normalize for the x-position
-	// which represents the greatest density of recorded events.
+	// scaling the height of the visualization to normalize for the overall
+	// event density at each x-position such that each column advancing over the
+	// x-axis is a representation of the stacked rate of each error category
+	// relative to the total number of events started within the time window
+	// represented by that position on the x-axis.
 	for x := 0; x < v.w; x++ {
 		y := 0
 		for i := 1; i < len(v.n); i++ {
