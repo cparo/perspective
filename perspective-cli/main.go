@@ -26,6 +26,10 @@ import (
 	"time"
 )
 
+// Mapping of action names to handler functions:
+var handlers map[string]func()
+
+// Command-line options and arguments:
 var (
 	errorClassConf string  // Optional conf file for error classification.
 	typeFilter     int     // Event type to filter for, if non-negative.
@@ -40,6 +44,46 @@ var (
 	iPath          string  // Filesystem path for input.
 	oPath          string  // Filesystem path for output.
 )
+
+func init() {
+
+	handlers["csv-convert"] = func() {
+		feeds.ConvertCSVToBinary(
+			iPath, oPath, tA, tΩ, typeFilter, errorClassConf)
+	}
+
+	handlers["vis-error-stack"] = func() {
+		visualize(perspective.NewErrorStack(w, h))
+	}
+
+	handlers["vis-histogram"] = func() {
+		visualize(perspective.NewHistogram(w, h, yLog2))
+	}
+
+	handlers["vis-rolling-stack"] = func() {
+		visualize(perspective.NewRollingStack(w, h, tA, tΩ))
+	}
+
+	handlers["vis-scatter"] = func() {
+		visualize(perspective.NewScatter(w, h, tΩ, tA, yLog2, colors, xGrid))
+	}
+
+	handlers["vis-status-stack"] = func() {
+		visualize(perspective.NewStatusStack(w, h))
+	}
+
+	handlers["vis-sweep"] = func() {
+		visualize(perspective.NewSweep(w, h, tA, tΩ, yLog2, colors, xGrid))
+	}
+
+	handlers["vis-wave"] = func() {
+		visualize(perspective.NewWave(w, h, tA, tΩ))
+	}
+
+	handlers["vis-wave-sorted"] = func() {
+		visualize(perspective.NewSortedWave(w, h, tA, tΩ))
+	}
+}
 
 func main() {
 
@@ -108,34 +152,15 @@ func main() {
 	iPath = flag.Arg(1)
 	oPath = flag.Arg(2)
 
-	if action == "csv-convert" {
-		convertCSV()
-	} else if action == "vis-error-stack" {
-		visualize(perspective.NewErrorStack(w, h))
-	} else if action == "vis-histogram" {
-		visualize(perspective.NewHistogram(w, h, yLog2))
-	} else if action == "vis-rolling-stack" {
-		visualize(perspective.NewRollingStack(w, h, tA, tΩ))
-	} else if action == "vis-scatter" {
-		visualize(perspective.NewScatter(w, h, tΩ, tA, yLog2, colors, xGrid))
-	} else if action == "vis-status-stack" {
-		visualize(perspective.NewStatusStack(w, h))
-	} else if action == "vis-sweep" {
-		visualize(perspective.NewSweep(w, h, tA, tΩ, yLog2, colors, xGrid))
-	} else if action == "vis-wave" {
-		visualize(perspective.NewWave(w, h, tA, tΩ))
-	} else if action == "vis-wave-sorted" {
-		visualize(perspective.NewSortedWave(w, h, tA, tΩ))
+	if handler, exists := handlers[action]; exists {
+		handler()
 	} else {
 		log.Println("Unrecognized action.")
 		os.Exit(1)
 	}
 }
 
-func convertCSV() {
-	feeds.ConvertCSVToBinary(iPath, oPath, tA, tΩ, typeFilter, errorClassConf)
-}
-
 func visualize(v perspective.Visualizer) {
 	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
+
