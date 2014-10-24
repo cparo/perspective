@@ -27,7 +27,7 @@ import (
 )
 
 // Mapping of action names to handler functions:
-var handlers map[string]func()
+var handlers = make(map[string]func())
 
 // Command-line options and arguments:
 var (
