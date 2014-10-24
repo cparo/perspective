@@ -23,13 +23,13 @@ import (
 )
 
 type scatter struct {
-	w      int         // Width of the visualization
-	h      int         // Height of the visualization
-	vis    *image.RGBA // Visualization canvas
-	tA     float64     // Lower limit of time range to be visualized
-	tτ     float64     // Length of time range to be visualized
-	yLog2  float64     // Number of pixels over which elapsed times double
-	colors float64     // Number of color steps before saturation
+	w     int         // Width of the visualization
+	h     int         // Height of the visualization
+	vis   *image.RGBA // Visualization canvas
+	tA    float64     // Lower limit of time range to be visualized
+	tτ    float64     // Length of time range to be visualized
+	yLog2 float64     // Number of pixels over which elapsed times double
+	cΔ    float64     // Increment for color channel value increases
 }
 
 // NewScatter returns a scatter-visualization generator.
@@ -49,7 +49,7 @@ func NewScatter(
 		float64(minTime),
 		float64(maxTime - minTime),
 		float64(yLog2),
-		float64(colorSteps)}).drawGrid(xGrid)
+		saturated / float64(colorSteps)}).drawGrid(xGrid)
 }
 
 // Record accepts an EventDataPoint and plots it onto the visualization.
@@ -65,20 +65,19 @@ func (v *scatter) Record(e EventDataPoint) {
 	// the event will be plotted and calculate its new color as a function of
 	// its existing color.
 	c := getRGBA(v.vis, x, y)
-	Δ := saturated / v.colors
 	if e.Status == 0 {
 		// We desturate success colors both for aesthetics and because this
 		// allows them an additional range of visual differentiation (from
 		// bright blue to white) beyond their normal clipping point in the blue
 		// band.
-		c.R = uint8(math.Min(saturated, float64(c.R)+Δ/4))
-		c.G = uint8(math.Min(saturated, float64(c.G)+Δ/4))
-		c.B = uint8(math.Min(saturated, float64(c.B)+Δ))
+		c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ/4))
+		c.G = uint8(math.Min(saturated, float64(c.G)+v.cΔ/4))
+		c.B = uint8(math.Min(saturated, float64(c.B)+v.cΔ))
 	} else {
 		// Failures are not desaturated to help make them more visible and to
 		// prevent a dense cluster of failures from looking like a dense cluster
 		// of successes.
-		c.R = uint8(math.Min(saturated, float64(c.R)+Δ))
+		c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ))
 	}
 }
 
