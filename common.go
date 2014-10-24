@@ -46,17 +46,6 @@ type Visualizer interface {
 	Render() image.Image
 }
 
-// Utility function for converting 32-bit color components (with an unsigned
-// 16-bit range, as is returned by image.RGBA.At()) into a standard 8-bit RGBA
-// color value usable for image.RGBA.Set().
-func c8(r16 uint32, g16 uint32, b16 uint32) color.RGBA {
-	return color.RGBA{
-		uint8(r16 >> 8),
-		uint8(g16 >> 8),
-		uint8(b16 >> 8),
-		opaque}
-}
-
 // Utility function to draw a vertical grid line at the specified x position.
 func drawXGridLine(vis *image.RGBA, x int) {
 	c := color.RGBA{grid, grid, grid, opaque}
