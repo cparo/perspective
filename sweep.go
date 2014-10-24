@@ -73,23 +73,22 @@ func (v *sweep) Record(e EventDataPoint) {
 		yMin := v.h/2 - int(v.yLog2*(math.Log2(math.Max(1, t-tMin))))
 		for yʹ := y; yʹ > yMin; yʹ-- {
 			y = yʹ
+			Δ := saturated / v.colors
 			if e.Status == 0 {
 				// Successes are plotted above the center line and allowed to
 				// desaturate in high-density regions for reasons of aesthetics
 				// and additional expressive range.
-				r16, g16, b16, _ := v.vis.At(x, y).RGBA()
-				r16 = uint32(math.Min(maxC16, float64(r16)+maxC16/v.colors/4))
-				g16 = uint32(math.Min(maxC16, float64(g16)+maxC16/v.colors/4))
-				b16 = uint32(math.Min(maxC16, float64(b16)+maxC16/v.colors))
-				plot(v.vis, x, y, r16, g16, b16)
+				c := getRGBA(v.vis, x, y)
+				c.R = uint8(math.Min(saturated, float64(c.R)+Δ/4))
+				c.G = uint8(math.Min(saturated, float64(c.G)+Δ/4))
+				c.B = uint8(math.Min(saturated, float64(c.B)+Δ))
 			} else {
 				// Failures are plotted below the center line and kept saturated
 				// to make them more visible and for the perceptual advantage of
 				// keeping them all red, all the time to clearly convey that
 				// they are an indication of something gone wrong.
-				r16, g16, b16, _ := v.vis.At(x, v.h-y).RGBA()
-				r16 = uint32(math.Min(maxC16, float64(r16)+maxC16/v.colors))
-				plot(v.vis, x, v.h-y, r16, g16, b16)
+				c := getRGBA(v.vis, x, v.h-y)
+				c.R = uint8(math.Min(saturated, float64(c.R)+Δ))
 			}
 		}
 	}
