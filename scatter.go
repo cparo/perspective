@@ -55,8 +55,7 @@ func NewScatter(
 // Record accepts an EventDataPoint and plots it onto the visualization.
 func (v *scatter) Record(e EventDataPoint) {
 
-	start := float64(e.Start)
-	x := int(float64(v.w) * (start - v.tA) / (v.tΩ - v.tA))
+	x := int(float64(v.w) * (float64(e.Start) - v.tA) / (v.tΩ - v.tA))
 	y := v.h - int(v.yLog2*math.Log2(float64(e.Run)))
 
 	// Since recorded events may collide in space with other recorded points in
@@ -65,22 +64,22 @@ func (v *scatter) Record(e EventDataPoint) {
 	// take into account the existing color of the point on the canvas to which
 	// the event will be plotted and calculate its new color as a function of
 	// its existing color.
-	r16, g16, b16, _ := v.vis.At(x, y).RGBA()
+	c := getRGBA(v.vis, x, y)
+	Δ := saturated / v.colors
 	if e.Status == 0 {
 		// We desturate success colors both for aesthetics and because this
 		// allows them an additional range of visual differentiation (from
 		// bright blue to white) beyond their normal clipping point in the blue
 		// band.
-		r16 = uint32(math.Min(maxC16, float64(r16)+maxC16/v.colors/4))
-		g16 = uint32(math.Min(maxC16, float64(g16)+maxC16/v.colors/4))
-		b16 = uint32(math.Min(maxC16, float64(b16)+maxC16/v.colors))
+		c.R = uint8(math.Min(saturated, float64(c.R)+Δ/4))
+		c.G = uint8(math.Min(saturated, float64(c.G)+Δ/4))
+		c.B = uint8(math.Min(saturated, float64(c.B)+Δ))
 	} else {
 		// Failures are not desaturated to help make them more visible and to
 		// prevent a dense cluster of failures from looking like a dense cluster
 		// of successes.
-		r16 = uint32(math.Min(maxC16, float64(r16)+maxC16/v.colors))
+		c.R = uint8(math.Min(saturated, float64(c.R)+Δ))
 	}
-	plot(v.vis, x, y, r16, g16, b16)
 }
 
 // Render returns the visualization constructed from all previously-recorded
