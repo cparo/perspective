@@ -19,10 +19,10 @@ package main
 
 import (
 	"flag"
-	"log"
-	"os"
 	"github.com/cparo/perspective"
 	"github.com/cparo/perspective/feeds"
+	"log"
+	"os"
 	"time"
 )
 
@@ -163,4 +163,3 @@ func main() {
 func visualize(v perspective.Visualizer) {
 	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
 }
-
