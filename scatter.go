@@ -27,7 +27,7 @@ type scatter struct {
 	h      int         // Height of the visualization
 	vis    *image.RGBA // Visualization canvas
 	tA     float64     // Lower limit of time range to be visualized
-	tΩ     float64     // Upper limit of time range to be visualized
+	tτ     float64     // Length of time range to be visualized
 	yLog2  float64     // Number of pixels over which elapsed times double
 	colors float64     // Number of color steps before saturation
 }
@@ -47,7 +47,7 @@ func NewScatter(
 		height,
 		initializeVisualization(width, height),
 		float64(minTime),
-		float64(maxTime),
+		float64(maxTime - minTime),
 		float64(yLog2),
 		float64(colorSteps)}).drawGrid(xGrid)
 }
@@ -55,7 +55,7 @@ func NewScatter(
 // Record accepts an EventDataPoint and plots it onto the visualization.
 func (v *scatter) Record(e EventDataPoint) {
 
-	x := int(float64(v.w) * (float64(e.Start) - v.tA) / (v.tΩ - v.tA))
+	x := int(float64(v.w) * (float64(e.Start) - v.tA) / v.tτ)
 	y := v.h - int(v.yLog2*math.Log2(float64(e.Run)))
 
 	// Since recorded events may collide in space with other recorded points in
