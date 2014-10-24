@@ -19,6 +19,7 @@ package perspective
 
 import (
 	"image"
+	"image/color"
 	"math"
 	"sort"
 )
@@ -89,13 +90,15 @@ func (v *sortedWave) Record(e EventDataPoint) {
 		}
 		sort.Sort(sort.Float64Slice(points))
 		for _, prog := range points {
-			var (
-				rg16 = uint32(math.Min(maxC16, float64(bg<<8+maxC16*prog/4)))
-				b16  = uint32(math.Min(maxC16, float64(bg<<8+maxC16*prog)))
-				yPʹ  = yP + 1
-			)
+			Δ := saturated * prog
+			c := color.RGBA{
+				uint8(math.Min(saturated, float64(bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(bg)+Δ)),
+				opaque}
+			yPʹ := yP + 1
 			for ; yP < yPʹ; yP++ {
-				plot(v.vis, v.x, v.h/2-yP, rg16, rg16, b16)
+				v.vis.Set(v.x, v.h/2-yP, c)
 			}
 		}
 		points = make([]float64, 0, len(v.f))
@@ -105,13 +108,15 @@ func (v *sortedWave) Record(e EventDataPoint) {
 		}
 		sort.Sort(sort.Float64Slice(points))
 		for _, prog := range points {
-			var (
-				r16  = uint32(math.Min(maxC16, float64(bg<<8+maxC16*prog)))
-				gb16 = uint32(math.Min(maxC16, float64(bg<<8+maxC16*prog/4)))
-				yFʹ  = yF + 1
-			)
+			Δ := saturated * prog
+			c := color.RGBA{
+				uint8(math.Min(saturated, float64(bg)+Δ)),
+				uint8(math.Min(saturated, float64(bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(bg)+Δ/4)),
+				opaque}
+			yFʹ := yF + 1
 			for ; yF < yFʹ; yF++ {
-				plot(v.vis, v.x, v.h/2+yF, r16, gb16, gb16)
+				v.vis.Set(v.x, v.h/2+yF, c)
 			}
 		}
 	}
