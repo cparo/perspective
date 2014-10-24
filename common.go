@@ -117,8 +117,3 @@ func initializeVisualization(width int, height int) *image.RGBA {
 	draw.Draw(vis, vis.Bounds(), &image.Uniform{background}, image.ZP, draw.Src)
 	return vis
 }
-
-// Utility function for pixel-by-pixel drawing.
-func plot(vis *image.RGBA, x int, y int, r16 uint32, g16 uint32, b16 uint32) {
-	vis.Set(x, y, c8(r16, g16, b16))
-}
