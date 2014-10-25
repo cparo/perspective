@@ -161,5 +161,13 @@ func main() {
 }
 
 func visualize(v perspective.Visualizer) {
-	feeds.GeneratePNGFromBinLog(iPath, oPath, tA, tΩ, typeFilter, v)
+
+	out, err := os.Create(oPath)
+	if err != nil {
+		log.Println("Failed to open output file for writing.")
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	feeds.GeneratePNGFromBinLog(iPath, out, tA, tΩ, typeFilter, v)
 }
