@@ -20,6 +20,7 @@ package feeds
 import (
 	"github.com/cparo/perspective"
 	"image/png"
+	"os"
 	"syscall"
 	"unsafe"
 )
@@ -48,7 +49,11 @@ func GeneratePNGFromBinLog(
 	typeFilter int,
 	v perspective.Visualizer) {
 
-	iFile, oFile := openFiles(iPath, oPath)
+	iFile, err := os.Open(iPath)
+	exitOnError(err, "Failed to open input file for reading.")
+
+	oFile, err := os.Create(oPath)
+	exitOnError(err, "Failed to open output file for writing.")
 
 	iStat, err := iFile.Stat()
 	exitOnError(err, "Failed to stat input file.")

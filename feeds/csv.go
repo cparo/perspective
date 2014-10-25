@@ -89,7 +89,11 @@ func ConvertCSVToBinary(
 		cFile.Close()
 	}
 
-	iFile, oFile := openFiles(iPath, oPath)
+	iFile, err := os.Open(iPath)
+	exitOnError(err, "Failed to open input file for reading.")
+
+	oFile, err := os.Create(oPath)
+	exitOnError(err, "Failed to open output file for writing.")
 
 	csvReader := csv.NewReader(bufio.NewReader(iFile))
 	binWriter := bufio.NewWriter(oFile)

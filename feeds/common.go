@@ -56,16 +56,3 @@ func exitOnError(err error, message string) {
 		os.Exit(1)
 	}
 }
-
-func openFiles(iPath string, oPath string) (iFile *os.File, oFile *os.File) {
-
-	var err error
-
-	iFile, err = os.Open(iPath)
-	exitOnError(err, "Failed to open input file for reading.")
-
-	oFile, err = os.Create(oPath)
-	exitOnError(err, "Failed to open output file for writing.")
-
-	return iFile, oFile
-}
