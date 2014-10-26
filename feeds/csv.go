@@ -21,6 +21,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -44,19 +45,13 @@ func ConvertCSVToBinary(
 	// which no explanation was provided.
 	filterString := "^\\s*$"
 	filter, err := regexp.Compile(filterString)
-	if err != nil {
-		log.Printf("Failed to compile regex '%s'.\n", filterString)
-		log.Println(err)
-		os.Exit(1)
-	}
+	panicOnError(
+		err,
+		fmt.Sprintf("Failed to compile regex '%s'.\n", filterString))
 	errorFilters := []*regexp.Regexp{filter}
 	if errorReasonFilterConf != "" {
 		cFile, err := os.Open(errorReasonFilterConf)
-		if err != nil {
-			log.Println("Failed to open error-reason filter config file.")
-			log.Println(err)
-			os.Exit(1)
-		}
+		panicOnError(err, "Failed to open error-reason filter config file.")
 		confReader := csv.NewReader(bufio.NewReader(cFile))
 		// Filter conf file is designed to look nicely tabular in plain text,
 		// so it has a pipe field delimiter and extra white space.
@@ -75,16 +70,13 @@ func ConvertCSVToBinary(
 			//       with a list of regex filters in the error-reason filter
 			//       config.
 			if len(fields) < 1 {
-				log.Println("Incorrect field count in filter config.")
-				os.Exit(1)
+				panic("Incorrect field count in filter config.")
 			}
 			filterString = strings.TrimSpace(fields[0])
 			filter, err = regexp.Compile(filterString)
-			if err != nil {
-				log.Println("Failed to compile regex '%s'.\n", filterString)
-				log.Println(err)
-				os.Exit(1)
-			}
+			panicOnError(
+				err,
+				fmt.Sprintf("Failed to compile regex '%s'.\n", filterString))
 			errorFilters = append(errorFilters, filter)
 		}
 		cFile.Close()
@@ -120,8 +112,7 @@ func ConvertCSVToBinary(
 		// 4) exit_status (success if 0, else failure)
 		// 5) errror_reason (text field)
 		if len(fields) != 6 {
-			log.Println("Incorrect field count in CSV input.")
-			os.Exit(1)
+			panic("Incorrect field count in filter config.")
 		}
 
 		fieldValue, err = strconv.ParseInt(fields[1], 10, 16)
@@ -170,6 +161,7 @@ func atEOF(err error, message string) bool {
 			return true
 		}
 		log.Println(message)
+
 		panic(err)
 	}
 	return false
