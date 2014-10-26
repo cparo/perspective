@@ -37,7 +37,7 @@ func eventFilter(
 
 func panicOnError(err error, message string) {
 	if err != nil {
-		log.Println(message)
-		panic(err)
+		log.Println(err)
+		panic(message)
 	}
 }
