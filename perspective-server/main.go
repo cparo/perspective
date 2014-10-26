@@ -18,6 +18,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/cparo/perspective"
 	"github.com/cparo/perspective/feeds"
 	"log"
@@ -184,7 +185,10 @@ func visualize(
 			if recovery := recover(); recovery != nil {
 				log.Printf(
 					"Recovering from internal server error: \"%s\"\n", recovery)
-				http.Error(out, "Internal Server Error", 500)
+				http.Error(
+					out,
+					fmt.Sprintf("Internal Server Error: %s", recovery),
+					500)
 			}
 		}()
 		sources[path] = feeds.MapBinLogFile(path)
