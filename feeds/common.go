@@ -18,22 +18,8 @@
 package feeds
 
 import (
-	"io"
 	"log"
-	"os"
 )
-
-func atEOF(err error, message string) bool {
-	if err != nil {
-		if err == io.EOF {
-			return true
-		}
-		log.Println(message)
-		log.Println(err)
-		os.Exit(1)
-	}
-	return false
-}
 
 func eventFilter(
 	startTime int,

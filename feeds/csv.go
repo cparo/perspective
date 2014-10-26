@@ -21,6 +21,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"encoding/csv"
+	"io"
 	"log"
 	"os"
 	"regexp"
@@ -161,6 +162,18 @@ func ConvertCSVToBinary(
 	}
 
 	panicOnError(binWriter.Flush(), "Error flushing data to binary log.")
+}
+
+func atEOF(err error, message string) bool {
+	if err != nil {
+		if err == io.EOF {
+			return true
+		}
+		log.Println(message)
+		log.Println(err)
+		os.Exit(1)
+	}
+	return false
 }
 
 func getErrorCode(errorReason string, errorFilters []*regexp.Regexp) int16 {
