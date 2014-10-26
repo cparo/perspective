@@ -63,10 +63,11 @@ func GeneratePNGFromBinLog(
 func MapBinLogFile(path string) *[]EventData {
 
 	iFile, err := os.Open(path)
-	exitOnError(err, "Failed to open input file for reading.")
+	panicOnError(err, "Failed to open input file for reading.")
+	defer iFile.Close()
 
 	iStat, err := iFile.Stat()
-	exitOnError(err, "Failed to stat input file.")
+	panicOnError(err, "Failed to stat input file.")
 
 	fileSize := int(iStat.Size())
 
@@ -76,7 +77,7 @@ func MapBinLogFile(path string) *[]EventData {
 		fileSize,
 		syscall.PROT_READ,
 		syscall.MAP_PRIVATE)
-	exitOnError(err, "Failed to mmap input file.")
+	panicOnError(err, "Failed to mmap input file.")
 
 	// Using this mmap-and-cast method of parsing the input log instead of the
 	// more idiomatic use of Go's bufio and encoding/binary packages for reading

@@ -49,10 +49,9 @@ func eventFilter(
 	return false
 }
 
-func exitOnError(err error, message string) {
+func panicOnError(err error, message string) {
 	if err != nil {
 		log.Println(message)
-		log.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 }

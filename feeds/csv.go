@@ -90,10 +90,12 @@ func ConvertCSVToBinary(
 	}
 
 	iFile, err := os.Open(iPath)
-	exitOnError(err, "Failed to open input file for reading.")
+	panicOnError(err, "Failed to open input file for reading.")
+	defer iFile.Close()
 
 	oFile, err := os.Create(oPath)
-	exitOnError(err, "Failed to open output file for writing.")
+	panicOnError(err, "Failed to open output file for writing.")
+	defer oFile.Close()
 
 	csvReader := csv.NewReader(bufio.NewReader(iFile))
 	binWriter := bufio.NewWriter(oFile)
@@ -122,11 +124,11 @@ func ConvertCSVToBinary(
 		}
 
 		fieldValue, err = strconv.ParseInt(fields[1], 10, 16)
-		exitOnError(err, "Error encountered parsing event type.")
+		panicOnError(err, "Error encountered parsing event type.")
 		eventData.Type = int16(fieldValue)
 
 		fieldValue, err = strconv.ParseInt(fields[2], 10, 32)
-		exitOnError(err, "Error encountered parsing event start time.")
+		panicOnError(err, "Error encountered parsing event start time.")
 		eventData.Start = int32(fieldValue)
 
 		if eventFilter(
@@ -137,30 +139,28 @@ func ConvertCSVToBinary(
 			typeFilter) {
 
 			fieldValue, err = strconv.ParseInt(fields[0], 10, 32)
-			exitOnError(err, "Error encountered parsing event ID.")
+			panicOnError(err, "Error encountered parsing event ID.")
 			eventData.ID = int32(fieldValue)
 
 			fieldValue, err = strconv.ParseInt(fields[3], 10, 32)
-			exitOnError(err, "Error encountered parsing event run time.")
+			panicOnError(err, "Error encountered parsing event run time.")
 			eventData.Run = int32(fieldValue)
 
 			fieldValue, err = strconv.ParseInt(fields[4], 10, 16)
-			exitOnError(err, "Error encountered parsing event status.")
+			panicOnError(err, "Error encountered parsing event status.")
 			if fieldValue == 0 {
 				eventData.Status = 0
 			} else {
 				eventData.Status = getErrorCode(fields[5], errorFilters)
 			}
 
-			exitOnError(
+			panicOnError(
 				binary.Write(binWriter, binary.LittleEndian, eventData),
 				"Error writing event data to binary log.")
 		}
 	}
 
-	exitOnError(
-		binWriter.Flush(),
-		"Error flushing data to binary log.")
+	panicOnError(binWriter.Flush(), "Error flushing data to binary log.")
 }
 
 func getErrorCode(errorReason string, errorFilters []*regexp.Regexp) int16 {
