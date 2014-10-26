@@ -27,7 +27,7 @@ import (
 	"unsafe"
 )
 
-// This struct is written to pack neatly into a 64-byte line while still
+// This struct is written to pack neatly into 64-byte lines while still
 // accommodating any data we will realistically be pulling out of our reference
 // database in the next couple of decades. This may not matter much for
 // performance, but it is pretty convenient for reading a hex dump of the
