@@ -169,5 +169,6 @@ func visualize(v perspective.Visualizer) {
 		os.Exit(1)
 	}
 
-	feeds.GeneratePNGFromBinLog(iPath, out, tA, tΩ, typeFilter, v)
+	feeds.GeneratePNGFromBinLog(
+		feeds.MapBinLogFile(iPath), tA, tΩ, typeFilter, v, out)
 }

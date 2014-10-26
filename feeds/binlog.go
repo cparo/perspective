@@ -22,6 +22,7 @@ import (
 	"image/png"
 	"io"
 	"os"
+	"reflect"
 	"syscall"
 	"unsafe"
 )
@@ -43,25 +44,36 @@ type eventData struct {
 // renders a visualization as a PNG file using the specified visualization
 // generator and input-filtering parameters.
 func GeneratePNGFromBinLog(
-	iPath string,
-	out io.Writer,
+	events *[]eventData,
 	tA int,
 	tΩ int,
 	typeFilter int,
-	v perspective.Visualizer) {
+	v perspective.Visualizer,
+	out io.Writer) {
 
-	iFile, err := os.Open(iPath)
+	for _, e := range *events {
+		if eventFilter(int(e.Start), int(e.Type), tA, tΩ, typeFilter) {
+			v.Record(perspective.EventDataPoint{e.Start, e.Run, e.Status})
+		}
+	}
+
+	png.Encode(out, v.Render())
+}
+
+func MapBinLogFile(path string) *[]eventData {
+
+	iFile, err := os.Open(path)
 	exitOnError(err, "Failed to open input file for reading.")
 
 	iStat, err := iFile.Stat()
 	exitOnError(err, "Failed to stat input file.")
 
-	iSize := int(iStat.Size())
+	fileSize := int(iStat.Size())
 
 	binLog, err := syscall.Mmap(
 		int(iFile.Fd()),
 		0,
-		iSize,
+		fileSize,
 		syscall.PROT_READ,
 		syscall.MAP_PRIVATE)
 	exitOnError(err, "Failed to mmap input file.")
@@ -76,14 +88,14 @@ func GeneratePNGFromBinLog(
 	// blank image canvas to a png file. Which should help to illustrate the
 	// absurd cost of avoiding an "unsafe" method for reading a file which would
 	// be considered perfectly valid in traditional systems development.
-	events := *(*[]eventData)(unsafe.Pointer(&binLog))
-	n := iSize / int(unsafe.Sizeof(eventData{}))
-	for i := 0; i < n; i++ {
-		e := events[i]
-		if eventFilter(int(e.Start), int(e.Type), tA, tΩ, typeFilter) {
-			v.Record(perspective.EventDataPoint{e.Start, e.Run, e.Status})
-		}
-	}
+	events := (*[]eventData)(unsafe.Pointer(&binLog))
 
-	png.Encode(out, v.Render())
+	// Correct the length and capacity of the events slice now that we have
+	// re-cast its type, so anything using that slice will know what to iterate
+	// over without running past the end.
+	header := (*reflect.SliceHeader)(unsafe.Pointer(events))
+	header.Len /= int(unsafe.Sizeof(eventData{}))
+	header.Cap /= int(unsafe.Sizeof(eventData{}))
+
+	return events
 }

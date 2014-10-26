@@ -149,5 +149,6 @@ func main() {
 }
 
 func visualize(v perspective.Visualizer, out io.Writer, r *requestOptions) {
-	feeds.GeneratePNGFromBinLog(r.iPath, out, r.tA, r.tΩ, r.typeFilter, v)
+	feeds.GeneratePNGFromBinLog(
+		feeds.MapBinLogFile(r.iPath), r.tA, r.tΩ, r.typeFilter, v, out)
 }
