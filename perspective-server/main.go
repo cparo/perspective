@@ -31,6 +31,9 @@ import (
 // Mapping of action names to handler functions:
 var handlers = make(map[string]func(io.Writer, *requestOptions))
 
+// Mapping of data-source paths to loaded data:
+var sources = make(map[string]*[]feeds.EventData)
+
 // Options and arguments:
 type requestOptions struct {
 	typeFilter int     // Event type to filter for, if non-negative.
@@ -68,6 +71,10 @@ func f64Opt(values url.Values, name string, defaultValue float64) float64 {
 		return defaultValue
 	}
 	return f64Value
+}
+
+func logFileLoad(path string) {
+	log.Printf("Loading data from file: \"%s\"\n", path)
 }
 
 func logMalformedOption(name string, value string) {
@@ -149,6 +156,27 @@ func main() {
 }
 
 func visualize(v perspective.Visualizer, out io.Writer, r *requestOptions) {
-	feeds.GeneratePNGFromBinLog(
-		feeds.MapBinLogFile(r.iPath), r.tA, r.tΩ, r.typeFilter, v, out)
+
+	// Load the event data if it is not already loaded.
+	// TODO: Some re-work will be needed here to do this in a thread-safe
+	//       manner before allowing this server to concurrently handle multiple
+	//       requests. Essentially, we will want to make a worker thread which
+	//       handles loading of and access to these mapped-file pointers - and
+	//       then have our HTTP request handlers send in requests for mapped
+	//       pointers by path which will then be asynchronously returned by the
+	//       worker (which can either process these requests sequentially or
+	//       lock on a per-path basis - in either case safeguarding against
+	//       race conditions). Practically speaking this is probably a non-issue
+	//       given the narrow time windows involved and invariant nature of the
+	//       logs behind these maps once generated - but there is no built-in
+	//       provision for safe concurrent manipulation of Go's maps themselves,
+	//       so proper defensive practice would be to make this unlikely issue
+	//       an impossible one.
+	path := r.iPath
+	if _, loaded := sources[path]; !loaded {
+		logFileLoad(path)
+		sources[path] = feeds.MapBinLogFile(path)
+	}
+
+	feeds.GeneratePNGFromBinLog(sources[path], r.tA, r.tΩ, r.typeFilter, v, out)
 }

@@ -99,7 +99,7 @@ func ConvertCSVToBinary(
 	binWriter := bufio.NewWriter(oFile)
 
 	var (
-		eventData  eventData
+		eventData  EventData
 		fieldValue int64
 	)
 

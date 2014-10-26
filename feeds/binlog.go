@@ -32,7 +32,7 @@ import (
 // database in the next couple of decades. This may not matter much for
 // performance, but it is pretty convenient for reading a hex dump of the
 // resulting binary event log format.
-type eventData struct {
+type EventData struct {
 	ID     int32 // Event ID as recorded in reference data source.
 	Start  int32 // In seconds since the beginning of the Unix epoch.
 	Run    int32 // Event run time, in seconds.
@@ -44,7 +44,7 @@ type eventData struct {
 // renders a visualization as a PNG file using the specified visualization
 // generator and input-filtering parameters.
 func GeneratePNGFromBinLog(
-	events *[]eventData,
+	events *[]EventData,
 	tA int,
 	tΩ int,
 	typeFilter int,
@@ -60,7 +60,7 @@ func GeneratePNGFromBinLog(
 	png.Encode(out, v.Render())
 }
 
-func MapBinLogFile(path string) *[]eventData {
+func MapBinLogFile(path string) *[]EventData {
 
 	iFile, err := os.Open(path)
 	exitOnError(err, "Failed to open input file for reading.")
@@ -80,7 +80,7 @@ func MapBinLogFile(path string) *[]eventData {
 
 	// Using this mmap-and-cast method of parsing the input log instead of the
 	// more idiomatic use of Go's bufio and encoding/binary packages for reading
-	// the input log into eventData structs yields a sixfold improvement in run
+	// the input log into EventData structs yields a sixfold improvement in run
 	// time and CPU cost in testing against a 45-MiB log of reference event
 	// data. When removing the actual rendering of graph data in a test run with
 	// each log-file reading implementation, the measured performance gain is
@@ -88,14 +88,14 @@ func MapBinLogFile(path string) *[]eventData {
 	// blank image canvas to a png file. Which should help to illustrate the
 	// absurd cost of avoiding an "unsafe" method for reading a file which would
 	// be considered perfectly valid in traditional systems development.
-	events := (*[]eventData)(unsafe.Pointer(&binLog))
+	events := (*[]EventData)(unsafe.Pointer(&binLog))
 
 	// Correct the length and capacity of the events slice now that we have
 	// re-cast its type, so anything using that slice will know what to iterate
 	// over without running past the end.
 	header := (*reflect.SliceHeader)(unsafe.Pointer(events))
-	header.Len /= int(unsafe.Sizeof(eventData{}))
-	header.Cap /= int(unsafe.Sizeof(eventData{}))
+	header.Len /= int(unsafe.Sizeof(EventData{}))
+	header.Cap /= int(unsafe.Sizeof(EventData{}))
 
 	return events
 }
