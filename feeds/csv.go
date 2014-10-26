@@ -170,8 +170,7 @@ func atEOF(err error, message string) bool {
 			return true
 		}
 		log.Println(message)
-		log.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 	return false
 }
