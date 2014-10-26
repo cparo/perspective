@@ -23,13 +23,13 @@ import (
 )
 
 type sweep struct {
-	w      int         // Width of the visualization
-	h      int         // Height of the visualization
-	vis    *image.RGBA // Visualization canvas
-	tA     float64     // Lower limit of time range to be visualized
-	tΩ     float64     // Upper limit of time range to be visualized
-	yLog2  float64     // Number of pixels over which elapsed times double
-	colors float64     // Number of color steps before saturation
+	w     int         // Width of the visualization
+	h     int         // Height of the visualization
+	vis   *image.RGBA // Visualization canvas
+	tA    float64     // Lower limit of time range to be visualized
+	tΩ    float64     // Upper limit of time range to be visualized
+	yLog2 float64     // Number of pixels over which elapsed times double
+	cΔ    float64     // Increment for color channel value increases
 }
 
 // NewSweep returns an sweep-visualization generator.
@@ -49,7 +49,7 @@ func NewSweep(
 		float64(minTime),
 		float64(maxTime),
 		float64(yLog2),
-		float64(colorSteps)}).drawGrid(xGrid)
+		saturated / float64(colorSteps)}).drawGrid(xGrid)
 }
 
 // Record accepts an EventDataPoint and plots it onto the visualization.
@@ -73,22 +73,21 @@ func (v *sweep) Record(e EventDataPoint) {
 		yMin := v.h/2 - int(v.yLog2*(math.Log2(math.Max(1, t-tMin))))
 		for yʹ := y; yʹ > yMin; yʹ-- {
 			y = yʹ
-			Δ := saturated / v.colors
 			if e.Status == 0 {
 				// Successes are plotted above the center line and allowed to
 				// desaturate in high-density regions for reasons of aesthetics
 				// and additional expressive range.
 				c := getRGBA(v.vis, x, y)
-				c.R = uint8(math.Min(saturated, float64(c.R)+Δ/4))
-				c.G = uint8(math.Min(saturated, float64(c.G)+Δ/4))
-				c.B = uint8(math.Min(saturated, float64(c.B)+Δ))
+				c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ/4))
+				c.G = uint8(math.Min(saturated, float64(c.G)+v.cΔ/4))
+				c.B = uint8(math.Min(saturated, float64(c.B)+v.cΔ))
 			} else {
 				// Failures are plotted below the center line and kept saturated
 				// to make them more visible and for the perceptual advantage of
 				// keeping them all red, all the time to clearly convey that
 				// they are an indication of something gone wrong.
 				c := getRGBA(v.vis, x, v.h-y)
-				c.R = uint8(math.Min(saturated, float64(c.R)+Δ))
+				c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ))
 			}
 		}
 	}
