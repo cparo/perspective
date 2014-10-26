@@ -20,7 +20,6 @@ package main
 import (
 	"github.com/cparo/perspective"
 	"github.com/cparo/perspective/feeds"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -29,7 +28,7 @@ import (
 )
 
 // Mapping of action names to handler functions:
-var handlers = make(map[string]func(io.Writer, *requestOptions))
+var handlers = make(map[string]func(http.ResponseWriter, *requestOptions))
 
 // Mapping of data-source paths to loaded data:
 var sources = make(map[string]*[]feeds.EventData)
@@ -49,19 +48,19 @@ type requestOptions struct {
 
 func init() {
 
-	handlers["vis-error-stack"] = func(out io.Writer, r *requestOptions) {
+	handlers["vis-error-stack"] = func(out http.ResponseWriter, r *requestOptions) {
 		visualize(perspective.NewErrorStack(r.w, r.h), out, r)
 	}
 
-	handlers["vis-histogram"] = func(out io.Writer, r *requestOptions) {
+	handlers["vis-histogram"] = func(out http.ResponseWriter, r *requestOptions) {
 		visualize(perspective.NewHistogram(r.w, r.h, r.yLog2), out, r)
 	}
 
-	handlers["vis-rolling-stack"] = func(out io.Writer, r *requestOptions) {
+	handlers["vis-rolling-stack"] = func(out http.ResponseWriter, r *requestOptions) {
 		visualize(perspective.NewRollingStack(r.w, r.h, r.tA, r.tΩ), out, r)
 	}
 
-	handlers["vis-scatter"] = func(out io.Writer, r *requestOptions) {
+	handlers["vis-scatter"] = func(out http.ResponseWriter, r *requestOptions) {
 		visualize(
 			perspective.NewScatter(
 				r.w, r.h, r.tΩ, r.tA, r.yLog2, r.colors, r.xGrid),
@@ -69,11 +68,11 @@ func init() {
 			r)
 	}
 
-	handlers["vis-status-stack"] = func(out io.Writer, r *requestOptions) {
+	handlers["vis-status-stack"] = func(out http.ResponseWriter, r *requestOptions) {
 		visualize(perspective.NewStatusStack(r.w, r.h), out, r)
 	}
 
-	handlers["vis-sweep"] = func(out io.Writer, r *requestOptions) {
+	handlers["vis-sweep"] = func(out http.ResponseWriter, r *requestOptions) {
 		visualize(
 			perspective.NewSweep(
 				r.w, r.h, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
@@ -81,11 +80,11 @@ func init() {
 			r)
 	}
 
-	handlers["vis-wave"] = func(out io.Writer, r *requestOptions) {
+	handlers["vis-wave"] = func(out http.ResponseWriter, r *requestOptions) {
 		visualize(perspective.NewWave(r.w, r.h, r.tA, r.tΩ), out, r)
 	}
 
-	handlers["vis-wave-sorted"] = func(out io.Writer, r *requestOptions) {
+	handlers["vis-wave-sorted"] = func(out http.ResponseWriter, r *requestOptions) {
 		visualize(perspective.NewSortedWave(r.w, r.h, r.tA, r.tΩ), out, r)
 	}
 }
@@ -158,7 +157,10 @@ func responder(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func visualize(v perspective.Visualizer, out io.Writer, r *requestOptions) {
+func visualize(
+	v perspective.Visualizer,
+	out http.ResponseWriter,
+	r *requestOptions) {
 
 	// Load the event data if it is not already loaded.
 	// TODO: Some re-work will be needed here to do this in a thread-safe
@@ -178,8 +180,20 @@ func visualize(v perspective.Visualizer, out io.Writer, r *requestOptions) {
 	path := r.iPath
 	if _, loaded := sources[path]; !loaded {
 		logFileLoad(path)
+		defer func() {
+			if recovery := recover(); recovery != nil {
+				log.Printf(
+					"Recovering from internal server error: \"%s\"\n", recovery)
+				http.Error(out, "Internal Server Error", 500)
+			}
+		}()
 		sources[path] = feeds.MapBinLogFile(path)
 	}
 
-	feeds.GeneratePNGFromBinLog(sources[path], r.tA, r.tΩ, r.typeFilter, v, out)
+	// This check needs to be repeated as it is possible that we just recovered
+	// from a failure to load a new input source.
+	if _, loaded := sources[path]; loaded {
+		feeds.GeneratePNGFromBinLog(
+			sources[path], r.tA, r.tΩ, r.typeFilter, v, out)
+	}
 }
