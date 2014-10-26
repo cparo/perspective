@@ -121,7 +121,10 @@ func logFileLoad(path string) {
 }
 
 func logMalformedOption(name string, value string) {
-	log.Printf("Malformed option: %s = \"%s\"\n", name, value)
+	log.Printf(
+		"Malformed option: %s = \"%s\", falling back to default.\n",
+		name,
+		value)
 }
 
 func main() {
