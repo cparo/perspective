@@ -153,8 +153,9 @@ func responder(response http.ResponseWriter, request *http.Request) {
 	if handler, exists := handlers[action]; exists {
 		handler(response, options)
 	} else {
-		log.Printf("Unrecognized action: %s\n", action)
-		http.NotFound(response, request)
+		msg := fmt.Sprintf("Unrecognized action: %s", action)
+		log.Println(msg)
+		http.Error(response, msg, 501)
 	}
 }
 
