@@ -49,7 +49,12 @@ func init() {
 
 	handlers["csv-convert"] = func() {
 		feeds.ConvertCSVToBinary(
-			iPath, oPath, tA, tΩ, typeFilter, errorClassConf)
+			iPath,
+			oPath,
+			int32(tA),
+			int32(tΩ),
+			int16(typeFilter),
+			errorClassConf)
 	}
 
 	handlers["vis-error-stack"] = func() {
@@ -170,5 +175,10 @@ func visualize(v perspective.Visualizer) {
 	}
 
 	feeds.GeneratePNGFromBinLog(
-		feeds.MapBinLogFile(iPath), tA, tΩ, typeFilter, v, out)
+		feeds.MapBinLogFile(iPath),
+		int32(tA),
+		int32(tΩ),
+		int16(typeFilter),
+		v,
+		out)
 }

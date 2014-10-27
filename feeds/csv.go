@@ -34,9 +34,9 @@ import (
 func ConvertCSVToBinary(
 	iPath string,
 	oPath string,
-	minTime int,
-	maxTime int,
-	typeFilter int,
+	minTime int32,
+	maxTime int32,
+	typeFilter int16,
 	errorReasonFilterConf string) {
 
 	// Initial filter is to match for the lack of an error reason string, as
@@ -125,8 +125,8 @@ func ConvertCSVToBinary(
 		eventData.Start = int32(fieldValue)
 
 		if eventFilter(
-			int(eventData.Start),
-			int(eventData.Type),
+			eventData.Start,
+			eventData.Type,
 			minTime,
 			maxTime,
 			typeFilter) {

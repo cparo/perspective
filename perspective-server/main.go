@@ -199,6 +199,11 @@ func visualize(
 	// from a failure to load a new input source.
 	if _, loaded := sources[path]; loaded {
 		feeds.GeneratePNGFromBinLog(
-			sources[path], r.tA, r.tΩ, r.typeFilter, v, out)
+			sources[path],
+			int32(r.tA),
+			int32(r.tΩ),
+			int16(r.typeFilter),
+			v,
+			out)
 	}
 }

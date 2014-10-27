@@ -22,11 +22,11 @@ import (
 )
 
 func eventFilter(
-	startTime int,
-	eventType int,
-	minTime int,
-	maxTime int,
-	typeFilter int) bool {
+	startTime int32,
+	eventType int16,
+	minTime int32,
+	maxTime int32,
+	typeFilter int16) bool {
 	if minTime < startTime && maxTime > startTime {
 		if typeFilter < 0 || eventType == typeFilter {
 			return true

@@ -32,9 +32,9 @@ import (
 // generator and input-filtering parameters.
 func GeneratePNGFromBinLog(
 	events *[]perspective.EventData,
-	tA int,
-	tΩ int,
-	typeFilter int,
+	tA int32,
+	tΩ int32,
+	typeFilter int16,
 	v perspective.Visualizer,
 	out io.Writer) {
 
@@ -43,7 +43,7 @@ func GeneratePNGFromBinLog(
 	// visualization through the HTTP API.
 	for i, _ := range(*events) {
 		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
-		if eventFilter(int(e.Start), int(e.Type), tA, tΩ, typeFilter) {
+		if eventFilter(e.Start, e.Type, tA, tΩ, typeFilter) {
 			v.Record(e)
 		}
 	}
