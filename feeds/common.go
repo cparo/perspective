@@ -18,17 +18,17 @@
 package feeds
 
 import (
+	"github.com/cparo/perspective"
 	"log"
 )
 
 func eventFilter(
-	startTime int32,
-	eventType int16,
+	event *perspective.EventData,
 	minTime int32,
 	maxTime int32,
 	typeFilter int16) bool {
-	if minTime < startTime && maxTime > startTime {
-		if typeFilter < 0 || eventType == typeFilter {
+	if minTime < event.Start && maxTime > event.Start {
+		if typeFilter < 0 || event.Type == typeFilter {
 			return true
 		}
 	}

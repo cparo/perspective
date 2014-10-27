@@ -41,9 +41,9 @@ func GeneratePNGFromBinLog(
 	// Passing event data by reference instead of passing it by value cuts about
 	// 12-15% off of run time in repeated before/after tests with the scatter
 	// visualization through the HTTP API.
-	for i, _ := range(*events) {
+	for i, _ := range *events {
 		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
-		if eventFilter(e.Start, e.Type, tA, tΩ, typeFilter) {
+		if eventFilter(e, tA, tΩ, typeFilter) {
 			v.Record(e)
 		}
 	}

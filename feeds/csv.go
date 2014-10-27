@@ -125,8 +125,7 @@ func ConvertCSVToBinary(
 		eventData.Start = int32(fieldValue)
 
 		if eventFilter(
-			eventData.Start,
-			eventData.Type,
+			&eventData,
 			minTime,
 			maxTime,
 			typeFilter) {
