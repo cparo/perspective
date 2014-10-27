@@ -25,14 +25,14 @@ import (
 )
 
 type sortedWave struct {
-	w   int              // Width of the visualization
-	h   int              // Height of the visualization
-	tA  float64          // Lower limit of time range to be visualized
-	tΩ  float64          // Upper limit of time range to be visualized
-	vis *image.RGBA      // Visualization canvas
-	x   int              // Current x-position for recording events
-	p   []EventDataPoint // Passing event data points in current x-position
-	f   []EventDataPoint // Failing event data points in current x-position
+	w   int          // Width of the visualization
+	h   int          // Height of the visualization
+	tA  float64      // Lower limit of time range to be visualized
+	tΩ  float64      // Upper limit of time range to be visualized
+	vis *image.RGBA  // Visualization canvas
+	x   int          // Current x-position for recording events
+	p   []*EventData // Passing event data points in current x-position
+	f   []*EventData // Failing event data points in current x-position
 }
 
 // NewSortedWave returns a wave-sorted-visualization generator.
@@ -45,20 +45,20 @@ func NewSortedWave(width int, height int, minTime int, maxTime int) Visualizer {
 		float64(maxTime),
 		initializeVisualization(width, height),
 		0,
-		[]EventDataPoint{},
-		[]EventDataPoint{}}
+		[]*EventData{},
+		[]*EventData{}}
 }
 
-// Record accepts an EventDataPoint and plots it onto the visualization.
+// Record accepts an EventData pointer and plots it onto the visualization.
 //
 // NOTE: Event input is expected to be received in chronological order. If
 //       it is not received in chronological order, the graph will not be
 //       rendered properly (with the severity of the issue being dependent
 //       upon the degree of deviation between the input order and the ideal
 //       chronologically-sorted input.
-func (v *sortedWave) Record(e EventDataPoint) {
-	pʹ := make([]EventDataPoint, 0, len(v.p)+64)
-	fʹ := make([]EventDataPoint, 0, len(v.f)+64)
+func (v *sortedWave) Record(e *EventData) {
+	pʹ := make([]*EventData, 0, len(v.p)+64)
+	fʹ := make([]*EventData, 0, len(v.f)+64)
 	for _, p := range v.p {
 		if p.Start+p.Run > e.Start {
 			pʹ = append(pʹ, p)

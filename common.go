@@ -32,17 +32,19 @@ const (
 	maxC16    = 65535 // Maximum color value returned from image.RGBA.At()
 )
 
-// Stripped-down struct for the data to be submitted to the actual visualization
-// generators, after filtering of the binary-formatted input data.
-type EventDataPoint struct {
+// Struct to represent data to submit to the visualization generators, and to be
+// used for the binary log format.
+type EventData struct {
+	ID     int32 // Event identifier.
 	Start  int32 // In seconds since the beginning of the Unix epoch.
 	Run    int32 // Event run time, in seconds.
+	Type   int16 // Event type indication.
 	Status int16 // Zero indicates success, non-zero indicates failure.
 }
 
 // Abstract interface for visualization generators.
 type Visualizer interface {
-	Record(EventDataPoint)
+	Record(*EventData)
 	Render() image.Image
 }
 

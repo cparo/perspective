@@ -52,8 +52,8 @@ func NewSweep(
 		saturated / float64(colorSteps)}).drawGrid(xGrid)
 }
 
-// Record accepts an EventDataPoint and plots it onto the visualization.
-func (v *sweep) Record(e EventDataPoint) {
+// Record accepts an EventData pointer and plots it onto the visualization.
+func (v *sweep) Record(e *EventData) {
 
 	tMin := float64(e.Start)
 	tMax := float64(e.Start + e.Run)

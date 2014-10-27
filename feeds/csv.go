@@ -22,6 +22,7 @@ import (
 	"encoding/binary"
 	"encoding/csv"
 	"fmt"
+	"github.com/cparo/perspective"
 	"io"
 	"log"
 	"os"
@@ -94,7 +95,7 @@ func ConvertCSVToBinary(
 	binWriter := bufio.NewWriter(oFile)
 
 	var (
-		eventData  EventData
+		eventData  perspective.EventData
 		fieldValue int64
 	)
 
@@ -133,8 +134,6 @@ func ConvertCSVToBinary(
 			fieldValue, err = strconv.ParseInt(fields[0], 10, 32)
 			panicOnError(err, "Error encountered parsing event ID.")
 			eventData.ID = int32(fieldValue)
-
-			fieldValue, err = strconv.ParseInt(fields[3], 10, 32)
 			panicOnError(err, "Error encountered parsing event run time.")
 			eventData.Run = int32(fieldValue)
 

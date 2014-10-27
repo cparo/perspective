@@ -34,8 +34,8 @@ func NewStatusStack(width int, height int) Visualizer {
 	return &statusStack{width, height, make(map[int16]int), 0}
 }
 
-// Record accepts an EventDataPoint and plots it onto the visualization.
-func (v *statusStack) Record(e EventDataPoint) {
+// Record accepts an EventData pointer and plots it onto the visualization.
+func (v *statusStack) Record(e *EventData) {
 	for int(e.Status)+1 > len(v.n) {
 		v.n[int16(len(v.n))] = 0
 	}

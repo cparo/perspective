@@ -27,24 +27,11 @@ import (
 	"unsafe"
 )
 
-// This struct is written to pack neatly into 64-byte lines while still
-// accommodating any data we will realistically be pulling out of our reference
-// database in the next couple of decades. This may not matter much for
-// performance, but it is pretty convenient for reading a hex dump of the
-// resulting binary event log format.
-type EventData struct {
-	ID     int32 // Event ID as recorded in reference data source.
-	Start  int32 // In seconds since the beginning of the Unix epoch.
-	Run    int32 // Event run time, in seconds.
-	Type   int16 // Event type ID as recorded in reference data source.
-	Status int16 // Zero indicates success, non-zero indicates failure.
-}
-
 // GeneratePNGFromBinLog reads a binary-log formatted event-data dump and
 // renders a visualization as a PNG file using the specified visualization
 // generator and input-filtering parameters.
 func GeneratePNGFromBinLog(
-	events *[]EventData,
+	events *[]perspective.EventData,
 	tA int,
 	tΩ int,
 	typeFilter int,
@@ -53,14 +40,14 @@ func GeneratePNGFromBinLog(
 
 	for _, e := range *events {
 		if eventFilter(int(e.Start), int(e.Type), tA, tΩ, typeFilter) {
-			v.Record(perspective.EventDataPoint{e.Start, e.Run, e.Status})
+			v.Record(&e)
 		}
 	}
 
 	png.Encode(out, v.Render())
 }
 
-func MapBinLogFile(path string) *[]EventData {
+func MapBinLogFile(path string) *[]perspective.EventData {
 
 	iFile, err := os.Open(path)
 	panicOnError(err, "Failed to open input file for reading.")
@@ -89,14 +76,14 @@ func MapBinLogFile(path string) *[]EventData {
 	// blank image canvas to a png file. Which should help to illustrate the
 	// absurd cost of avoiding an "unsafe" method for reading a file which would
 	// be considered perfectly valid in traditional systems development.
-	events := (*[]EventData)(unsafe.Pointer(&binLog))
+	events := (*[]perspective.EventData)(unsafe.Pointer(&binLog))
 
 	// Correct the length and capacity of the events slice now that we have
 	// re-cast its type, so anything using that slice will know what to iterate
 	// over without running past the end.
 	header := (*reflect.SliceHeader)(unsafe.Pointer(events))
-	header.Len /= int(unsafe.Sizeof(EventData{}))
-	header.Cap /= int(unsafe.Sizeof(EventData{}))
+	header.Len /= int(unsafe.Sizeof(perspective.EventData{}))
+	header.Cap /= int(unsafe.Sizeof(perspective.EventData{}))
 
 	return events
 }

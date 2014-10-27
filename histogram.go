@@ -41,8 +41,8 @@ func NewHistogram(width int, height int, yLog2 float64) Visualizer {
 		make([]int, width)}
 }
 
-// Record accepts an EventDataPoint and plots it onto the visualization.
-func (v *histogram) Record(e EventDataPoint) {
+// Record accepts an EventData pointer and plots it onto the visualization.
+func (v *histogram) Record(e *EventData) {
 
 	// Run time is hacked to a floor of 1 because a log of zero doesn't
 	// make a lot of sense, and there are some fun cases of events with

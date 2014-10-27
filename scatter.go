@@ -52,8 +52,8 @@ func NewScatter(
 		saturated / float64(colorSteps)}).drawGrid(xGrid)
 }
 
-// Record accepts an EventDataPoint and plots it onto the visualization.
-func (v *scatter) Record(e EventDataPoint) {
+// Record accepts an EventData pointer and plots it onto the visualization.
+func (v *scatter) Record(e *EventData) {
 
 	x := int(float64(v.w) * (float64(e.Start) - v.tA) / v.tτ)
 	y := v.h - int(v.yLog2*math.Log2(float64(e.Run)))

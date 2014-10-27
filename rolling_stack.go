@@ -47,8 +47,8 @@ func NewRollingStack(
 		make([]float64, width)}
 }
 
-// Record accepts an EventDataPoint and plots it onto the visualization.
-func (v *rollingStack) Record(e EventDataPoint) {
+// Record accepts an EventData pointer and plots it onto the visualization.
+func (v *rollingStack) Record(e *EventData) {
 	for int(e.Status)+1 > len(v.n) {
 		v.n[int16(len(v.n))] = make([]int, v.w)
 	}

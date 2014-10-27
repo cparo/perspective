@@ -32,7 +32,7 @@ import (
 var handlers = make(map[string]func(http.ResponseWriter, *options))
 
 // Mapping of data-source paths to loaded data:
-var sources = make(map[string]*[]feeds.EventData)
+var sources = make(map[string]*[]perspective.EventData)
 
 // Options and arguments:
 type options struct {
