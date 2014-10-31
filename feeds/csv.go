@@ -133,6 +133,8 @@ func ConvertCSVToBinary(
 			fieldValue, err = strconv.ParseInt(fields[0], 10, 32)
 			panicOnError(err, "Error encountered parsing event ID.")
 			eventData.ID = int32(fieldValue)
+
+			fieldValue, err = strconv.ParseInt(fields[3], 10, 32)
 			panicOnError(err, "Error encountered parsing event run time.")
 			eventData.Run = int32(fieldValue)
 
