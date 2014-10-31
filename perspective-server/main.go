@@ -64,7 +64,7 @@ func init() {
 	handlers["vis-scatter"] = func(out http.ResponseWriter, r *options) {
 		visualize(
 			perspective.NewScatter(
-				r.w, r.h, r.tΩ, r.tA, r.yLog2, r.colors, r.xGrid),
+				r.w, r.h, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
 			out,
 			r)
 	}

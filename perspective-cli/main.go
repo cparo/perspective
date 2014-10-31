@@ -79,7 +79,7 @@ func init() {
 	}
 
 	handlers["vis-scatter"] = func() {
-		visualize(perspective.NewScatter(w, h, tΩ, tA, yLog2, colors, xGrid))
+		visualize(perspective.NewScatter(w, h, tA, tΩ, yLog2, colors, xGrid))
 	}
 
 	handlers["vis-status-stack"] = func() {
