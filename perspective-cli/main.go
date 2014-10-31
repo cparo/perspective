@@ -57,6 +57,15 @@ func init() {
 			errorClassConf)
 	}
 
+	handlers["print-event-log"] = func() {
+		feeds.PrintEventLog(
+			iPath,
+			int32(tA),
+			int32(tΩ),
+			int16(typeFilter),
+			errorClassConf)
+	}
+
 	handlers["vis-error-stack"] = func() {
 		visualize(perspective.NewErrorStack(w, h))
 	}
