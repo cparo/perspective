@@ -26,7 +26,7 @@ type rollingStack struct {
 	w  int             // Width of the visualization
 	h  int             // Height of the visualization
 	tA float64         // Lower limit of time range to be visualized
-	tΩ float64         // Upper limit of time range to be visualized
+	tτ float64         // Length of time range to be visualized
 	n  map[int16][]int // Event counts by status and x-axis position
 	σ  []float64       // Event totals by and x-axis position
 }
@@ -42,7 +42,7 @@ func NewRollingStack(
 		width,
 		height,
 		float64(minTime),
-		float64(maxTime),
+		float64(maxTime - minTime),
 		make(map[int16][]int),
 		make([]float64, width)}
 }
@@ -54,7 +54,7 @@ func (v *rollingStack) Record(e *EventData) {
 	}
 	w := float64(v.w)
 	s := float64(e.Start)
-	x := int(math.Min(w-1, w*(s-v.tA)/(v.tΩ-v.tA)))
+	x := int(math.Min(w-1, w*(s-v.tA)/v.tτ))
 	v.n[e.Status][x]++
 	v.σ[x]++
 }
