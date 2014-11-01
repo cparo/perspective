@@ -57,6 +57,10 @@ func init() {
 		visualize(perspective.NewHistogram(r.w, r.h, r.yLog2), out, r)
 	}
 
+	handlers["vis-ribbon"] = func(out http.ResponseWriter, r *options) {
+		visualize(perspective.NewRibbon(r.w, r.h, r.tA, r.tΩ), out, r)
+	}
+
 	handlers["vis-rolling-stack"] = func(out http.ResponseWriter, r *options) {
 		visualize(perspective.NewRollingStack(r.w, r.h, r.tA, r.tΩ), out, r)
 	}
