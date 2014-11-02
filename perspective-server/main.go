@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -118,6 +119,16 @@ func timeOpt(values url.Values, name string, defaultValue int) int {
 	timeValue, err := time.Parse("2006-01-02 15:04:05 MST", strValue)
 	if err == nil {
 		return int(timeValue.Unix())
+	}
+	// Check for leading "-" as indication of time offset backward from NOW()
+	// rather than forward from the beginning of the Unix epoch.
+	if strings.HasPrefix(strValue, "-") {
+		intValue, err := strconv.Atoi(strValue)
+		if err != nil {
+			logMalformedOption(name, strValue)
+			return defaultValue
+		}
+		return int(time.Now().Unix()) + intValue
 	}
 	// Attempt parsing the time value as Unix epoch time in seconds...
 	intValue, err := strconv.Atoi(strValue)
