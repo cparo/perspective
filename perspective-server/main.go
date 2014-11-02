@@ -171,7 +171,7 @@ func main() {
 func responder(response http.ResponseWriter, request *http.Request) {
 
 	// Parse options, using the same defaults as are used by the CLI interface
-	// where options are misisng or malformed:
+	// where options are missing or malformed:
 	values := request.URL.Query()
 	options := &options{
 		intOpt(values, "event-type", -1),
