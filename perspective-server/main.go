@@ -107,6 +107,27 @@ func intOpt(values url.Values, name string, defaultValue int) int {
 	return intValue
 }
 
+func timeOpt(values url.Values, name string, defaultValue int) int {
+	strValue := values.Get(name)
+	// If no value is specified, fall back to default value...
+	if strValue == "" {
+		return defaultValue
+	}
+	// Attempt parsing the time as a human-friendly timestamp...
+	// Format is: "YYYY-MM-DD HH:MM:SS Z"
+	timeValue, err := time.Parse("2006-01-02 15:04:05 MST", strValue)
+	if err == nil {
+		return int(timeValue.Unix())
+	}
+	// Attempt parsing the time value as Unix epoch time in seconds...
+	intValue, err := strconv.Atoi(strValue)
+	if err != nil {
+		logMalformedOption(name, strValue)
+		return defaultValue
+	}
+	return intValue
+}
+
 func f64Opt(values url.Values, name string, defaultValue float64) float64 {
 	strValue := values.Get(name)
 	if strValue == "" {
@@ -143,8 +164,8 @@ func responder(response http.ResponseWriter, request *http.Request) {
 	values := request.URL.Query()
 	options := &options{
 		intOpt(values, "event-type", -1),
-		intOpt(values, "min-time", 0),
-		intOpt(values, "max-time", int(time.Now().Unix())),
+		timeOpt(values, "min-time", 0),
+		timeOpt(values, "max-time", int(time.Now().Unix())),
 		intOpt(values, "x-grid", 0),
 		f64Opt(values, "run-time-scale", 16),
 		intOpt(values, "width", 256),
