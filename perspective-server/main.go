@@ -108,6 +108,13 @@ func intOpt(values url.Values, name string, defaultValue int) int {
 	return intValue
 }
 
+func hasUnitSuffix(value string, unit string) (trimmed string, match bool) {
+	if strings.HasSuffix(value, unit) {
+		return strings.TrimSuffix(value, unit), true
+	}
+	return value, false
+}
+
 func timeOpt(values url.Values, name string, defaultValue int) int {
 	strValue := values.Get(name)
 	// If no value is specified, fall back to default value...
@@ -123,12 +130,46 @@ func timeOpt(values url.Values, name string, defaultValue int) int {
 	// Check for leading "-" as indication of time offset backward from NOW()
 	// rather than forward from the beginning of the Unix epoch.
 	if strings.HasPrefix(strValue, "-") {
+		// Trim any trailing "s" from the option-value string, as this is either
+		// an unimportant plural indicator (which can be safely discarded in
+		// parsing) or an indicator of the seconds unit of time (which can also
+		// be safely discarded in parsing, as seconds are the default unit).
+		// Note that this would not allow for fractional-second units - but that
+		// is okay as the internal assumption is that time is represented in a
+		// granularity of seconds and has no smaller fractional unit. A consumer
+		// of this graphing system could of course submit time stamps whose
+		// integer values represent something else (ms, µs, ns, samples, etc.),
+		// record events with these units and display them with a window in
+		// these units. This off-label usage would just be a bit of a hack in
+		// that internally this system would assume that it is working with
+		// second-level epoch times - and might do unexpected things if given a
+		// unit-suffixed or human-friendly time value for the display range.
+		strValue = strings.TrimSuffix(strValue, "s")
+		// Detect and handle any time-unit-specifying suffix...
+		var unitSeconds int
+		if trimmed, match := hasUnitSuffix(strValue, "year"); match {
+			strValue, unitSeconds = trimmed, 31536000 // Assume 365-day year
+		} else if trimmed, match := hasUnitSuffix(strValue, "month"); match {
+			strValue, unitSeconds = trimmed, 2678400 // Assume 31-day month
+		} else if trimmed, match := hasUnitSuffix(strValue, "week"); match {
+			strValue, unitSeconds = trimmed, 604800
+		} else if trimmed, match := hasUnitSuffix(strValue, "day"); match {
+			strValue, unitSeconds = trimmed, 86400
+		} else if trimmed, match := hasUnitSuffix(strValue, "h"); match {
+			strValue, unitSeconds = trimmed, 3600
+		} else if trimmed, match := hasUnitSuffix(strValue, "m"); match {
+			strValue, unitSeconds = trimmed, 60
+		} else {
+			unitSeconds = 1 // Default to a one-second unit
+		}
+		// Process what is left of the option value, which should be parsable as
+		// an integer at this point.
 		intValue, err := strconv.Atoi(strValue)
 		if err != nil {
 			logMalformedOption(name, strValue)
 			return defaultValue
 		}
-		return int(time.Now().Unix()) + intValue
+		return int(time.Now().Unix()) + intValue*unitSeconds
 	}
 	// Attempt parsing the time value as Unix epoch time in seconds...
 	intValue, err := strconv.Atoi(strValue)
