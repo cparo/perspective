@@ -29,6 +29,8 @@ import (
 	"time"
 )
 
+const dataPath = "/var/opt/perspective/"
+
 // Mapping of action names to handler functions:
 var handlers = make(map[string]func(http.ResponseWriter, *options))
 
@@ -45,7 +47,7 @@ type options struct {
 	w          int     // Visualization width, in pixels.
 	h          int     // Visualization height, in pixels.
 	colors     int     // The number of color steps before saturation.
-	iPath      string  // Filesystem path for input.
+	feed       string  // Input feed name.
 }
 
 func init() {
@@ -193,6 +195,14 @@ func f64Opt(values url.Values, name string, defaultValue float64) float64 {
 	return f64Value
 }
 
+func strOpt(values url.Values, name string, defaultValue string) string {
+	strValue := values.Get(name)
+	if strValue == "" {
+		return defaultValue
+	}
+	return strValue
+}
+
 func logFileLoad(path string) {
 	log.Printf("Loading data from file: \"%s\"\n", path)
 }
@@ -223,8 +233,7 @@ func responder(response http.ResponseWriter, request *http.Request) {
 		intOpt(values, "width", 256),
 		intOpt(values, "height", 256),
 		intOpt(values, "color-steps", 1),
-		"/home/cparo/Devel/compact_event_dump_creates_only.dat"}
-	// TODO: REPLACE HARD-CODED INPUT PATH ABOVE
+		strOpt(values, "feed", "")}
 
 	action := request.URL.Path[1:]
 	if handler, exists := handlers[action]; exists {
@@ -256,7 +265,7 @@ func visualize(
 	//       provision for safe concurrent manipulation of Go's maps themselves,
 	//       so proper defensive practice would be to make this unlikely issue
 	//       an impossible one.
-	path := r.iPath
+	path := dataPath + r.feed + ".dat"
 	if _, loaded := sources[path]; !loaded {
 		logFileLoad(path)
 		defer func() {
