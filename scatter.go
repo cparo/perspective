@@ -101,8 +101,9 @@ func (v *scatter) drawGrid(xGrid int) *scatter {
 		drawYGridLine(v.vis, y)
 	}
 
-	// Draw a line up top, for the sake of tidy appearance.
+	// Draw a line along the top and bottom, for the sake of tidy appearance.
 	drawYGridLine(v.vis, 0)
+	drawYGridLine(v.vis, v.h - 1)
 
 	// Return the scatter visualization struct, so this can be conveniently
 	// used in the visualization's constructor.
