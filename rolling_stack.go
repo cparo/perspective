@@ -49,14 +49,17 @@ func NewRollingStack(
 
 // Record accepts an EventData pointer and plots it onto the visualization.
 func (v *rollingStack) Record(e *EventData) {
-	for int(e.Status)+1 > len(v.n) {
-		v.n[int16(len(v.n))] = make([]int, v.w)
+	if e.Status >= 0 {
+		// Ignore in-progress events, record all completed and failed events.
+		for int(e.Status)+1 > len(v.n) {
+			v.n[int16(len(v.n))] = make([]int, v.w)
+		}
+		w := float64(v.w)
+		s := float64(e.Start)
+		x := int(math.Min(w-1, w*(s-v.tA)/v.tτ))
+		v.n[e.Status][x]++
+		v.σ[x]++
 	}
-	w := float64(v.w)
-	s := float64(e.Start)
-	x := int(math.Min(w-1, w*(s-v.tA)/v.tτ))
-	v.n[e.Status][x]++
-	v.σ[x]++
 }
 
 // Render returns the visualization constructed from all previously-recorded
