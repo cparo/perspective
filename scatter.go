@@ -73,11 +73,19 @@ func (v *scatter) Record(e *EventData) {
 		c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ/4))
 		c.G = uint8(math.Min(saturated, float64(c.G)+v.cΔ/4))
 		c.B = uint8(math.Min(saturated, float64(c.B)+v.cΔ))
-	} else {
+	} else if e.Status > 0 {
 		// Failures are not desaturated to help make them more visible and to
 		// prevent a dense cluster of failures from looking like a dense cluster
 		// of successes.
 		c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ))
+	} else {
+		// In-progress events are shown as grayscale points capping out at a
+		// light-mid gray to avoid confusion with a high density of successful
+		// events, unless the point is already beyond that intensity on one or
+		// more channels due to other recorded events.
+		c.R = uint8(math.Max(float64(c.R), math.Min(196, float64(c.R)+v.cΔ)))
+		c.G = uint8(math.Max(float64(c.G), math.Min(196, float64(c.G)+v.cΔ)))
+		c.B = uint8(math.Max(float64(c.B), math.Min(196, float64(c.B)+v.cΔ)))
 	}
 }
 
@@ -103,7 +111,7 @@ func (v *scatter) drawGrid(xGrid int) *scatter {
 
 	// Draw a line along the top and bottom, for the sake of tidy appearance.
 	drawYGridLine(v.vis, 0)
-	drawYGridLine(v.vis, v.h - 1)
+	drawYGridLine(v.vis, v.h-1)
 
 	// Return the scatter visualization struct, so this can be conveniently
 	// used in the visualization's constructor.
