@@ -95,6 +95,8 @@ func PrintEventLog(
 			fmt.Printf("  Type ID:    %d\n", e.Type)
 			if e.Status > 0 {
 				fmt.Printf("  Status:     %s\n\n", errorFilters[e.Status-1])
+			} else if e.Status < 0 {
+				fmt.Printf("  Status:     [in progress]")
 			}
 		}
 	}
