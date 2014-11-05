@@ -150,20 +150,6 @@ func isLoaded(path string) bool {
 	return true
 }
 
-func isModified(path string) bool {
-	fileInfo, err := os.Stat(path)
-	if err != nil {
-		// Assume invalidation if we fail to stat file.
-		return true
-	}
-	if mtime, def := mTimes[path]; !def || mtime.Before(fileInfo.ModTime()) {
-		// Either we don't have a timestamp to compare or the file has been
-		// modified since we last mapped it.
-		return true
-	}
-	return false
-}
-
 func hasUnitSuffix(value string, unit string) (trimmed string, match bool) {
 	if strings.HasSuffix(value, unit) {
 		return strings.TrimSuffix(value, unit), true
