@@ -171,6 +171,69 @@ func hasUnitSuffix(value string, unit string) (trimmed string, match bool) {
 	return value, false
 }
 
+func f64Opt(values url.Values, name string, defaultValue float64) float64 {
+	strValue := values.Get(name)
+	if strValue == "" {
+		return defaultValue
+	}
+	f64Value, err := strconv.ParseFloat(strValue, 64)
+	if err != nil {
+		logMalformedOption(name, strValue)
+		return defaultValue
+	}
+	return f64Value
+}
+
+func logFileLoad(path string) {
+	log.Printf("Loading data from file: \"%s\"\n", path)
+}
+
+func logMalformedOption(name string, value string) {
+	log.Printf(
+		"Malformed option: %s = \"%s\", falling back to default.\n",
+		name,
+		value)
+}
+
+func main() {
+	http.HandleFunc("/", responder)
+	http.ListenAndServe(":8080", nil)
+}
+
+func responder(response http.ResponseWriter, request *http.Request) {
+
+	// Parse options, using the same defaults as are used by the CLI interface
+	// where options are missing or malformed:
+	values := request.URL.Query()
+	options := &options{
+		intOpt(values, "event-type", -1),
+		timeOpt(values, "min-time", 0),
+		timeOpt(values, "max-time", int(time.Now().Unix())),
+		intOpt(values, "x-grid", 0),
+		f64Opt(values, "run-time-scale", 16),
+		intOpt(values, "width", 256),
+		intOpt(values, "height", 256),
+		intOpt(values, "color-steps", 1),
+		strOpt(values, "feed", "")}
+
+	action := request.URL.Path[1:]
+	if handler, exists := handlers[action]; exists {
+		handler(response, options)
+	} else {
+		msg := fmt.Sprintf("Unrecognized action: %s", action)
+		log.Println(msg)
+		http.Error(response, msg, 501)
+	}
+}
+
+func strOpt(values url.Values, name string, defaultValue string) string {
+	strValue := values.Get(name)
+	if strValue == "" {
+		return defaultValue
+	}
+	return strValue
+}
+
 func timeOpt(values url.Values, name string, defaultValue int) int {
 	strValue := values.Get(name)
 	// If no value is specified, fall back to default value...
@@ -234,69 +297,6 @@ func timeOpt(values url.Values, name string, defaultValue int) int {
 		return defaultValue
 	}
 	return intValue
-}
-
-func f64Opt(values url.Values, name string, defaultValue float64) float64 {
-	strValue := values.Get(name)
-	if strValue == "" {
-		return defaultValue
-	}
-	f64Value, err := strconv.ParseFloat(strValue, 64)
-	if err != nil {
-		logMalformedOption(name, strValue)
-		return defaultValue
-	}
-	return f64Value
-}
-
-func logFileLoad(path string) {
-	log.Printf("Loading data from file: \"%s\"\n", path)
-}
-
-func logMalformedOption(name string, value string) {
-	log.Printf(
-		"Malformed option: %s = \"%s\", falling back to default.\n",
-		name,
-		value)
-}
-
-func main() {
-	http.HandleFunc("/", responder)
-	http.ListenAndServe(":8080", nil)
-}
-
-func responder(response http.ResponseWriter, request *http.Request) {
-
-	// Parse options, using the same defaults as are used by the CLI interface
-	// where options are missing or malformed:
-	values := request.URL.Query()
-	options := &options{
-		intOpt(values, "event-type", -1),
-		timeOpt(values, "min-time", 0),
-		timeOpt(values, "max-time", int(time.Now().Unix())),
-		intOpt(values, "x-grid", 0),
-		f64Opt(values, "run-time-scale", 16),
-		intOpt(values, "width", 256),
-		intOpt(values, "height", 256),
-		intOpt(values, "color-steps", 1),
-		strOpt(values, "feed", "")}
-
-	action := request.URL.Path[1:]
-	if handler, exists := handlers[action]; exists {
-		handler(response, options)
-	} else {
-		msg := fmt.Sprintf("Unrecognized action: %s", action)
-		log.Println(msg)
-		http.Error(response, msg, 501)
-	}
-}
-
-func strOpt(values url.Values, name string, defaultValue string) string {
-	strValue := values.Get(name)
-	if strValue == "" {
-		return defaultValue
-	}
-	return strValue
 }
 
 func visualize(
