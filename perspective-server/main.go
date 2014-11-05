@@ -101,6 +101,19 @@ func init() {
 	}
 }
 
+func f64Opt(values url.Values, name string, defaultValue float64) float64 {
+	strValue := values.Get(name)
+	if strValue == "" {
+		return defaultValue
+	}
+	f64Value, err := strconv.ParseFloat(strValue, 64)
+	if err != nil {
+		logMalformedOption(name, strValue)
+		return defaultValue
+	}
+	return f64Value
+}
+
 func intOpt(values url.Values, name string, defaultValue int) int {
 	strValue := values.Get(name)
 	if strValue == "" {
@@ -155,19 +168,6 @@ func hasUnitSuffix(value string, unit string) (trimmed string, match bool) {
 		return strings.TrimSuffix(value, unit), true
 	}
 	return value, false
-}
-
-func f64Opt(values url.Values, name string, defaultValue float64) float64 {
-	strValue := values.Get(name)
-	if strValue == "" {
-		return defaultValue
-	}
-	f64Value, err := strconv.ParseFloat(strValue, 64)
-	if err != nil {
-		logMalformedOption(name, strValue)
-		return defaultValue
-	}
-	return f64Value
 }
 
 func logFileLoad(path string) {
