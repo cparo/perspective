@@ -36,11 +36,14 @@ func NewStatusStack(width int, height int) Visualizer {
 
 // Record accepts an EventData pointer and plots it onto the visualization.
 func (v *statusStack) Record(e *EventData) {
-	for int(e.Status)+1 > len(v.n) {
-		v.n[int16(len(v.n))] = 0
+	// Ignore in-progress events, record all others.
+	if e.Status >= 0 {
+		for int(e.Status)+1 > len(v.n) {
+			v.n[int16(len(v.n))] = 0
+		}
+		v.n[e.Status]++
+		v.σ++
 	}
-	v.n[e.Status]++
-	v.σ++
 }
 
 // Render returns the visualization constructed from all previously-recorded
