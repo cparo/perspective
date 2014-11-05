@@ -29,13 +29,18 @@ type ribbon struct {
 	tτ   float64 // Length of time range to be visualized
 	pass []int   // Successful events by x-axis position
 	fail []int   // Failed events by x-axis position
+	open []int   // In-progress events by x-axis position
 	pMax int     // Maximum number of successful events in any x position
 	fMax int     // Maximum number of failed events in any x position
+	oMax int     // Maximum number of in-progress events in any x position
 }
 
 // NewRibbon returns a ribbon-visualization generator.
 func NewRibbon(width int, height int, minTime int, maxTime int) Visualizer {
 
+	// Max counts are initialized to 1 instead of 0 to avoid division-by-zero
+	// issues with feeds which do not contain examples of all three of
+	// completed, failed, and in-progress events.
 	return &ribbon{
 		width,
 		height,
@@ -43,8 +48,10 @@ func NewRibbon(width int, height int, minTime int, maxTime int) Visualizer {
 		float64(maxTime - minTime),
 		make([]int, width),
 		make([]int, width),
-		0,
-		0}
+		make([]int, width),
+		1,
+		1,
+		1}
 }
 
 // Record accepts an EventData pointer and plots it onto the visualization.
@@ -53,13 +60,17 @@ func (v *ribbon) Record(e *EventData) {
 	w := float64(v.w)
 	s := float64(e.Start)
 	x := int(math.Min(w-1, w*(s-v.tA)/v.tτ))
-	if e.Status > 0 {
+	if e.Status == 0 {
+		if v.pass[x]++; v.pass[x] > v.pMax {
+			v.pMax++
+		}
+	} else if e.Status > 0 {
 		if v.fail[x]++; v.fail[x] > v.fMax {
 			v.fMax++
 		}
 	} else {
-		if v.pass[x]++; v.pass[x] > v.pMax {
-			v.pMax++
+		if v.open[x]++; v.open[x] > v.oMax {
+			v.oMax++
 		}
 	}
 }
@@ -81,14 +92,16 @@ func (v *ribbon) Render() image.Image {
 	h := float64(v.h)
 	fMax := float64(v.fMax)
 	pMax := float64(v.pMax)
+	oMax := float64(v.oMax)
 	for x := 0; x < v.w; x++ {
 		r := saturated * float64(v.fail[x]) / fMax
 		b := saturated * float64(v.pass[x]) / pMax
+		w := bg + (saturated-bg)*float64(v.open[x])/oMax
 		for y := 0; y < v.h; y++ {
 			c := getRGBA(vis, x, y)
-			c.R = uint8(math.Min(saturated, bg+r*float64(y)/h))
-			c.G = bg
-			c.B = uint8(math.Min(saturated, bg+b*(1-(float64(y)/h))))
+			c.R = uint8(math.Min(saturated, w+r*float64(y)/h))
+			c.G = uint8(w)
+			c.B = uint8(math.Min(saturated, w+b*(1-(float64(y)/h))))
 		}
 	}
 
