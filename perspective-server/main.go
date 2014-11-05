@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -36,6 +37,9 @@ var handlers = make(map[string]func(http.ResponseWriter, *options))
 
 // Mapping of data-source paths to loaded data:
 var sources = make(map[string]*[]perspective.EventData)
+
+// Mapping of data-source paths to time of last modification:
+var mTimes = make(map[string]time.Time)
 
 // Options and arguments:
 type options struct {
@@ -108,6 +112,56 @@ func intOpt(values url.Values, name string, defaultValue int) int {
 		return defaultValue
 	}
 	return intValue
+}
+
+func isLoaded(path string) bool {
+
+	// Determine whether we have an up-to-date mapping of a file already loaded.
+
+	if _, loaded := sources[path]; !loaded {
+		// File has not been loaded since the server started.
+		return false
+	}
+
+	if _, recorded := mTimes[path]; !recorded {
+		// We don't have a timestamp to compare for a file which has previously
+		// been mapped. This should never happen, but let's be paranoid here and
+		// indicate that the file needs to be (re)loaded after logging that this
+		// happened.
+		log.Printf(
+			"FIXME: Found loaded file with no recorded mtime entry: \"s\"",
+			path)
+		return false
+	}
+
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		// Assume invalidation if we fail to stat file.
+		return false
+	}
+
+	if mtime, def := mTimes[path]; !def || mtime.Before(fileInfo.ModTime()) {
+		// Either we don't have a timestamp to compare (which should never
+		// happen, but let's be paranoid here) or the file has been modified
+		// since we last mapped it.
+		return false
+	}
+
+	return true
+}
+
+func isModified(path string) bool {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		// Assume invalidation if we fail to stat file.
+		return true
+	}
+	if mtime, def := mTimes[path]; !def || mtime.Before(fileInfo.ModTime()) {
+		// Either we don't have a timestamp to compare or the file has been
+		// modified since we last mapped it.
+		return true
+	}
+	return false
 }
 
 func hasUnitSuffix(value string, unit string) (trimmed string, match bool) {
@@ -250,7 +304,7 @@ func visualize(
 	out http.ResponseWriter,
 	r *options) {
 
-	// Load the event data if it is not already loaded.
+	// Load the event data if it is not already loaded and current.
 	// TODO: Some re-work will be needed here to do this in a thread-safe
 	//       manner before allowing this server to concurrently handle multiple
 	//       requests. Essentially, we will want to make a worker thread which
@@ -266,30 +320,46 @@ func visualize(
 	//       so proper defensive practice would be to make this unlikely issue
 	//       an impossible one.
 	path := dataPath + r.feed + ".dat"
-	if _, loaded := sources[path]; !loaded {
-		logFileLoad(path)
+	for !isLoaded(path) {
 		defer func() {
 			if recovery := recover(); recovery != nil {
 				log.Printf(
 					"Recovering from internal server error: \"%s\"\n", recovery)
 				http.Error(
 					out,
-					fmt.Sprintf("Internal Server Error: %s", recovery),
+					fmt.Sprintf("Internal Server Error"),
 					500)
 			}
 		}()
+		fileInfo, err := os.Stat(path)
+		if err != nil {
+			log.Printf(
+				"Unable to stat file for loading: \"%s\"\n", path)
+			http.Error(
+				out,
+				fmt.Sprintf("Specified Feed Not Found"),
+				404)
+			return
+		}
+		// Remove any existing mapping we may have of the file before updating
+		// timestamp entry, and update timestamp entry before (re)loading file
+		// so future checks will work as expected if the mapping fails or the
+		// file is modified between getting its timestamp or finishing the load
+		// process. Note that our expectation is that files are atomically moved
+		// to and deleted from the paths we are accessing - "interesting" things
+		// could happen otherwise, as is generally the case when reading from
+		// files which are being modified by some other process.
+		delete(sources, path)
+		mTimes[path] = fileInfo.ModTime()
+		logFileLoad(path)
 		sources[path] = feeds.MapBinLogFile(path)
 	}
 
-	// This check needs to be repeated as it is possible that we just recovered
-	// from a failure to load a new input source.
-	if _, loaded := sources[path]; loaded {
-		feeds.GeneratePNGFromBinLog(
-			sources[path],
-			int32(r.tA),
-			int32(r.tΩ),
-			int16(r.typeFilter),
-			v,
-			out)
-	}
+	feeds.GeneratePNGFromBinLog(
+		sources[path],
+		int32(r.tA),
+		int32(r.tΩ),
+		int16(r.typeFilter),
+		v,
+		out)
 }
