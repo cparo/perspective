@@ -39,7 +39,7 @@ type EventData struct {
 	Start  int32 // In seconds since the beginning of the Unix epoch.
 	Run    int32 // Event run time, in seconds.
 	Type   int16 // Event type indication.
-	Status int16 // Zero indicates success, non-zero indicates failure.
+	Status int16 // 0 for success, >0 for failure, <0 for in-progress.
 }
 
 // Abstract interface for visualization generators.

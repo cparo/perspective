@@ -140,10 +140,11 @@ func ConvertCSVToBinary(
 
 			fieldValue, err = strconv.ParseInt(fields[4], 10, 16)
 			panicOnError(err, "Error encountered parsing event status.")
-			if fieldValue == 0 {
-				eventData.Status = 0
-			} else {
+			if fieldValue > 0 {
 				eventData.Status = getErrorCode(fields[5], errorFilters)
+			} else {
+				// Event is successful (0) or in-progress (negative)
+				eventData.Status = int16(fieldValue)
 			}
 
 			panicOnError(
