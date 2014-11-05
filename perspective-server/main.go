@@ -249,14 +249,6 @@ func f64Opt(values url.Values, name string, defaultValue float64) float64 {
 	return f64Value
 }
 
-func strOpt(values url.Values, name string, defaultValue string) string {
-	strValue := values.Get(name)
-	if strValue == "" {
-		return defaultValue
-	}
-	return strValue
-}
-
 func logFileLoad(path string) {
 	log.Printf("Loading data from file: \"%s\"\n", path)
 }
@@ -297,6 +289,14 @@ func responder(response http.ResponseWriter, request *http.Request) {
 		log.Println(msg)
 		http.Error(response, msg, 501)
 	}
+}
+
+func strOpt(values url.Values, name string, defaultValue string) string {
+	strValue := values.Get(name)
+	if strValue == "" {
+		return defaultValue
+	}
+	return strValue
 }
 
 func visualize(
