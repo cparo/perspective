@@ -114,6 +114,13 @@ func f64Opt(values url.Values, name string, defaultValue float64) float64 {
 	return f64Value
 }
 
+func hasUnitSuffix(value string, unit string) (trimmed string, match bool) {
+	if strings.HasSuffix(value, unit) {
+		return strings.TrimSuffix(value, unit), true
+	}
+	return value, false
+}
+
 func intOpt(values url.Values, name string, defaultValue int) int {
 	strValue := values.Get(name)
 	if strValue == "" {
@@ -161,13 +168,6 @@ func isLoaded(path string) bool {
 	}
 
 	return true
-}
-
-func hasUnitSuffix(value string, unit string) (trimmed string, match bool) {
-	if strings.HasSuffix(value, unit) {
-		return strings.TrimSuffix(value, unit), true
-	}
-	return value, false
 }
 
 func logFileLoad(path string) {
