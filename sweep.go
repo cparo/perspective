@@ -81,13 +81,36 @@ func (v *sweep) Record(e *EventData) {
 				c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ/4))
 				c.G = uint8(math.Min(saturated, float64(c.G)+v.cΔ/4))
 				c.B = uint8(math.Min(saturated, float64(c.B)+v.cΔ))
-			} else {
+			} else if e.Status > 0 {
 				// Failures are plotted below the center line and kept saturated
 				// to make them more visible and for the perceptual advantage of
 				// keeping them all red, all the time to clearly convey that
 				// they are an indication of something gone wrong.
 				c := getRGBA(v.vis, x, v.h-y)
 				c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ))
+			} else {
+				// In-progress events are shown as grayscale points capping out
+				// at a light-mid gray to avoid confusion with a high density of
+				// successful events, unless the point is already beyond that
+				// intensity on one or more channels due to other recorded
+				// events. While an event is in-progress, it will branch both up
+				// and down from the center line as an indication of the
+				// uncertainty of its eventual completion status (consider cats
+				// in boxes).
+				c := getRGBA(v.vis, x, y)
+				cR := float64(c.R)
+				cG := float64(c.G)
+				cB := float64(c.B)
+				c.R = uint8(math.Max(cR, math.Min(196, cR+v.cΔ)))
+				c.G = uint8(math.Max(cG, math.Min(196, cG+v.cΔ)))
+				c.B = uint8(math.Max(cB, math.Min(196, cB+v.cΔ)))
+				c = getRGBA(v.vis, x, v.h-y)
+				cR = float64(c.R)
+				cG = float64(c.G)
+				cB = float64(c.B)
+				c.R = uint8(math.Max(cR, math.Min(196, cR+v.cΔ)))
+				c.G = uint8(math.Max(cG, math.Min(196, cG+v.cΔ)))
+				c.B = uint8(math.Max(cB, math.Min(196, cB+v.cΔ)))
 			}
 		}
 	}
