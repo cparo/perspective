@@ -71,10 +71,13 @@ func (v *sortedWave) Record(e *EventData) {
 	}
 	v.p = pʹ
 	v.f = fʹ
+	inProgress := 0
 	if e.Status == 0 {
 		v.p = append(v.p, e)
-	} else {
+	} else if e.Status > 0 {
 		v.f = append(v.f, e)
+	} else {
+		inProgress++
 	}
 	t := float64(e.Start)
 	xʹ := int(float64(v.w) * (t - v.tA) / (v.tΩ - v.tA))
@@ -98,7 +101,7 @@ func (v *sortedWave) Record(e *EventData) {
 				opaque}
 			yPʹ := yP + 1
 			for ; yP < yPʹ; yP++ {
-				v.vis.Set(v.x, v.h/2-yP, c)
+				v.vis.Set(v.x, v.h/2-yP-inProgress/2, c)
 			}
 		}
 		points = make([]float64, 0, len(v.f))
@@ -116,7 +119,7 @@ func (v *sortedWave) Record(e *EventData) {
 				opaque}
 			yFʹ := yF + 1
 			for ; yF < yFʹ; yF++ {
-				v.vis.Set(v.x, v.h/2+yF, c)
+				v.vis.Set(v.x, v.h/2+yF+inProgress/2, c)
 			}
 		}
 	}
