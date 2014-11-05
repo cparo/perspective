@@ -50,11 +50,12 @@ func (v *histogram) Record(e *EventData) {
 	x := int(v.yLog2 * math.Log2(math.Max(1, float64(e.Run))))
 
 	// Discard data which lies beyond the specified bounds for the
-	// rendered visualization.
+	// rendered visualization, and only record completed events. Incomplete
+	// events are not of interest in this visualization.
 	if x < v.w {
 		if e.Status == 0 {
 			v.pass[x] = v.pass[x] + 1
-		} else {
+		} else if e.Status > 0 {
 			v.fail[x] = v.fail[x] + 1
 		}
 	}
