@@ -44,12 +44,10 @@ func (this *modelQueue) Push(e int32) {
 	// (this ordering actually behaves more stack than a queue in its internal
 	// implementation, since the soonest-to-expire events are put at the tail to
 	// minimize churn in element positions)...
-	i := len(this.q) - 1
-	for i > 0 && this.q[i] > this.q[i-1] {
+	for i := len(this.q) - 1; i > 0 && this.q[i] > this.q[i-1]; i-- {
 		eʹ := this.q[i]
 		this.q[i] = this.q[i-1]
 		this.q[i-1] = eʹ
-		i--
 	}
 }
 
@@ -57,10 +55,8 @@ func (this *modelQueue) Push(e int32) {
 // value from the queue, and returns the number of elements left in the queue
 // following this expiration process.
 func (this *modelQueue) Step(t int32) int {
-	i := len(this.q) - 1
-	for i >= 0 && this.q[i] <= t {
+	for i := len(this.q) - 1; i >= 0 && this.q[i] <= t; i-- {
 		this.q = this.q[:i]
-		i--
 	}
 	return len(this.q)
 }
