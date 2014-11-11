@@ -79,13 +79,11 @@ func (v *scatter) Record(e *EventData) {
 		// of successes.
 		c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ))
 	} else {
-		// In-progress events are shown as grayscale points capping out at a
-		// light-mid gray to avoid confusion with a high density of successful
-		// events, unless the point is already beyond that intensity on one or
-		// more channels due to other recorded events.
-		c.R = uint8(math.Max(float64(c.R), math.Min(196, float64(c.R)+v.cΔ)))
-		c.G = uint8(math.Max(float64(c.G), math.Min(196, float64(c.G)+v.cΔ)))
-		c.B = uint8(math.Max(float64(c.B), math.Min(196, float64(c.B)+v.cΔ)))
+		// In-progress events are shown as green points, desaturated like
+		// successful events are.
+		c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ/4))
+		c.G = uint8(math.Min(saturated, float64(c.G)+v.cΔ))
+		c.B = uint8(math.Min(saturated, float64(c.B)+v.cΔ/4))
 	}
 }
 
