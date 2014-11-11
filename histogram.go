@@ -99,8 +99,8 @@ func (v *histogram) Render() image.Image {
 func (v *histogram) drawGrid(vis *image.RGBA) {
 
 	// Draw vertical grid lines on each doubling of the run time in seconds.
-	for x := 0; x < v.w; x += int(float64(v.w) / v.yLog2) {
-		drawXGridLine(vis, x)
+	for x := float64(0); x < float64(v.w); x += v.yLog2 {
+		drawXGridLine(vis, int(x))
 	}
 
 	// Draw lines bounding the reset of the graph, for the sake of a tidy
