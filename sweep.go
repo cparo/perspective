@@ -132,9 +132,9 @@ func (v *sweep) drawGrid(xGrid int) *sweep {
 	}
 
 	// Draw horizontal grid lines on each doubling of the run time in seconds
-	for y := v.h / 2; y < v.h; y = y + int(float64(v.h)/v.yLog2) {
-		drawYGridLine(v.vis, y)
-		drawYGridLine(v.vis, v.h-y)
+	for y := float64(v.h) / 2; y < float64(v.h); y = y + v.yLog2 {
+		drawYGridLine(v.vis, int(y))
+		drawYGridLine(v.vis, v.h-int(y))
 	}
 
 	// Draw a line up top, for the sake of tidy appearance
