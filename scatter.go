@@ -105,8 +105,8 @@ func (v *scatter) drawGrid(xGrid int) *scatter {
 	}
 
 	// Draw horizontal grid lines on each doubling of the run time in seconds.
-	for y := v.h; y > 0; y -= int(float64(v.h) / v.yLog2) {
-		drawYGridLine(v.vis, y)
+	for y := float64(v.h); y > 0; y -= v.yLog2 {
+		drawYGridLine(v.vis, int(y))
 	}
 
 	// Draw a line along the top and bottom, for the sake of tidy appearance.
