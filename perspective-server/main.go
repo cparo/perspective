@@ -101,6 +101,55 @@ func init() {
 	}
 }
 
+func dumpEventData(out http.ResponseWriter, r *options) {
+
+	// Load the event data if it is not already loaded and current.
+	// TODO: This is redundant with much of the visualize() helper for normal
+	//       visualization-generation handlers, and shoule be refactored away
+	//       after base functionality has been established.
+	path := dataPath + r.feed + ".dat"
+	for !isLoaded(path) {
+		defer func() {
+			if recovery := recover(); recovery != nil {
+				log.Printf(
+					"Recovering from internal server error: \"%s\"\n", recovery)
+				http.Error(
+					out,
+					fmt.Sprintf("Internal Server Error"),
+					500)
+			}
+		}()
+		fileInfo, err := os.Stat(path)
+		if err != nil {
+			log.Printf(
+				"Unable to stat file for loading: \"%s\"\n", path)
+			http.Error(
+				out,
+				fmt.Sprintf("Specified Feed Not Found"),
+				404)
+			return
+		}
+		// Remove any existing mapping we may have of the file before updating
+		// timestamp entry, and update timestamp entry before (re)loading file
+		// so future checks will work as expected if the mapping fails or the
+		// file is modified between getting its timestamp or finishing the load
+		// process. Note that our expectation is that files are atomically moved
+		// to and deleted from the paths we are accessing - "interesting" things
+		// could happen otherwise, as is generally the case when reading from
+		// files which are being modified by some other process.
+		delete(sources, path)
+		mTimes[path] = fileInfo.ModTime()
+		logFileLoad(path)
+		sources[path] = feeds.MapBinLogFile(path)
+	}
+	feeds.DumpEventData(
+		sources[path],
+		int32(r.tA),
+		int32(r.tΩ),
+		int16(r.typeFilter),
+		out)
+}
+
 func f64Opt(values url.Values, name string, defaultValue float64) float64 {
 	strValue := values.Get(name)
 	if strValue == "" {
@@ -203,6 +252,15 @@ func responder(response http.ResponseWriter, request *http.Request) {
 		strOpt(values, "feed", "")}
 
 	action := request.URL.Path[1:]
+
+	// Special case to handle a request for a dump of the event data (filtered
+	// by the specified time and type options) rather than a visualization of
+	// the event data...
+	if action == "event-data" {
+		dumpEventData(response, options)
+		return
+	}
+
 	if handler, exists := handlers[action]; exists {
 		handler(response, options)
 	} else {

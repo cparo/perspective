@@ -18,6 +18,7 @@
 package feeds
 
 import (
+	"encoding/binary"
 	"github.com/cparo/perspective"
 	"image/png"
 	"io"
@@ -26,6 +27,30 @@ import (
 	"syscall"
 	"unsafe"
 )
+
+// DumpEventData reads a binary-log formatted event-data dump and writes out a
+// listing of the data in the event records which match the specified filtering
+// criteria. These values are written as all int32 values for the sake of making
+// the output easier to consume with such things as a JavaScript Typed Array
+// parser (which lacks native support for such concepts as c-style structs).
+func DumpEventData(
+	events *[]perspective.EventData,
+	tA int32,
+	tΩ int32,
+	typeFilter int16,
+	out io.Writer) {
+
+	for i, _ := range *events {
+		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
+		if eventFilter(e, tA, tΩ, typeFilter) {
+			binary.Write(out, binary.LittleEndian, int32(e.ID))
+			binary.Write(out, binary.LittleEndian, int32(e.Start))
+			binary.Write(out, binary.LittleEndian, int32(e.Run))
+			binary.Write(out, binary.LittleEndian, int32(e.Type))
+			binary.Write(out, binary.LittleEndian, int32(e.Status))
+		}
+	}
+}
 
 // GeneratePNGFromBinLog reads a binary-log formatted event-data dump and
 // renders a visualization as a PNG file using the specified visualization
