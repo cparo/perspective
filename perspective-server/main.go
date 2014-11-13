@@ -31,6 +31,7 @@ import (
 )
 
 const dataPath = "/var/opt/perspective/"
+const staticContentPath = "/var/opt/perspective/static/"
 
 // Mapping of action names to handler functions:
 var handlers = make(map[string]func(http.ResponseWriter, *options))
@@ -232,6 +233,8 @@ func logMalformedOption(name string, value string) {
 
 func main() {
 	http.HandleFunc("/", responder)
+	fs := http.FileServer(http.Dir(staticContentPath))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.ListenAndServe(":8080", nil)
 }
 
