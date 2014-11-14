@@ -33,6 +33,7 @@ var handlers = make(map[string]func())
 var (
 	errorClassConf string  // Optional conf file for error classification.
 	typeFilter     int     // Event type to filter for, if non-negative.
+	statusFilter   int     // Least significant bits: {done, failed, running}.
 	tA             int     // Lower limit of time range to be visualized.
 	tΩ             int     // Upper limit of time range to be visualized.
 	xGrid          int     // Number of horizontal grid divisions.
@@ -54,6 +55,7 @@ func init() {
 			int32(tA),
 			int32(tΩ),
 			int16(typeFilter),
+			statusFilter,
 			errorClassConf)
 	}
 
@@ -63,6 +65,7 @@ func init() {
 			int32(tA),
 			int32(tΩ),
 			int16(typeFilter),
+			statusFilter,
 			errorClassConf)
 	}
 
@@ -116,6 +119,12 @@ func main() {
 		"event-type-id",
 		-1,
 		"Event type ID to filter for.")
+
+	flag.IntVar(
+		&statusFilter,
+		"status-filter",
+		-1,
+		"Bitmask for event statuses; LSB are {done,failed,running}.")
 
 	flag.IntVar(
 		&tA,
@@ -192,6 +201,7 @@ func visualize(v perspective.Visualizer) {
 		int32(tA),
 		int32(tΩ),
 		int16(typeFilter),
+		statusFilter,
 		v,
 		out)
 }

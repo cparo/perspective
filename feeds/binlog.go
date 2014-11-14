@@ -38,11 +38,12 @@ func DumpEventData(
 	tA int32,
 	tΩ int32,
 	typeFilter int16,
+	statusFilter int,
 	out io.Writer) {
 
 	for i, _ := range *events {
 		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
-		if eventFilter(e, tA, tΩ, typeFilter) {
+		if eventFilter(e, tA, tΩ, typeFilter, statusFilter) {
 			binary.Write(out, binary.LittleEndian, int32(e.ID))
 			binary.Write(out, binary.LittleEndian, int32(e.Start))
 			binary.Write(out, binary.LittleEndian, int32(e.Run))
@@ -60,6 +61,7 @@ func GeneratePNGFromBinLog(
 	tA int32,
 	tΩ int32,
 	typeFilter int16,
+	statusFilter int,
 	v perspective.Visualizer,
 	out io.Writer) {
 
@@ -68,7 +70,7 @@ func GeneratePNGFromBinLog(
 	// visualization through the HTTP API.
 	for i, _ := range *events {
 		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
-		if eventFilter(e, tA, tΩ, typeFilter) {
+		if eventFilter(e, tA, tΩ, typeFilter, statusFilter) {
 			v.Record(e)
 		}
 	}

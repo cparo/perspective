@@ -44,15 +44,16 @@ var mTimes = make(map[string]time.Time)
 
 // Options and arguments:
 type options struct {
-	typeFilter int     // Event type to filter for, if non-negative.
-	tA         int     // Lower limit of time range to be visualized.
-	tΩ         int     // Upper limit of time range to be visualized.
-	xGrid      int     // Number of horizontal grid divisions.
-	yLog2      float64 // Number of pixels over which elapsed times double.
-	w          int     // Visualization width, in pixels.
-	h          int     // Visualization height, in pixels.
-	colors     int     // The number of color steps before saturation.
-	feed       string  // Input feed name.
+	statusFilter int     // Least significant bits: {done, failed, running}.
+	typeFilter   int     // Event type to filter for, if non-negative.
+	tA           int     // Lower limit of time range to be visualized.
+	tΩ           int     // Upper limit of time range to be visualized.
+	xGrid        int     // Number of horizontal grid divisions.
+	yLog2        float64 // Number of pixels over which elapsed times double.
+	w            int     // Visualization width, in pixels.
+	h            int     // Visualization height, in pixels.
+	colors       int     // The number of color steps before saturation.
+	feed         string  // Input feed name.
 }
 
 func init() {
@@ -148,6 +149,7 @@ func dumpEventData(out http.ResponseWriter, r *options) {
 		int32(r.tA),
 		int32(r.tΩ),
 		int16(r.typeFilter),
+		r.statusFilter,
 		out)
 }
 
@@ -244,6 +246,7 @@ func responder(response http.ResponseWriter, request *http.Request) {
 	// where options are missing or malformed:
 	values := request.URL.Query()
 	options := &options{
+		intOpt(values, "status-filter", -1),
 		intOpt(values, "event-type", -1),
 		timeOpt(values, "min-time", 0),
 		timeOpt(values, "max-time", int(time.Now().Unix())),
@@ -407,6 +410,7 @@ func visualize(
 		int32(r.tA),
 		int32(r.tΩ),
 		int16(r.typeFilter),
+		r.statusFilter,
 		v,
 		out)
 }

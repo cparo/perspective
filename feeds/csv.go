@@ -37,6 +37,7 @@ func ConvertCSVToBinary(
 	minTime int32,
 	maxTime int32,
 	typeFilter int16,
+	statusFilter int,
 	errorReasonFilterConf string) {
 
 	// Initial filter is to match for the lack of an error reason string, as
@@ -128,7 +129,8 @@ func ConvertCSVToBinary(
 			&eventData,
 			minTime,
 			maxTime,
-			typeFilter) {
+			typeFilter,
+			statusFilter) {
 
 			fieldValue, err = strconv.ParseInt(fields[0], 10, 32)
 			panicOnError(err, "Error encountered parsing event ID.")

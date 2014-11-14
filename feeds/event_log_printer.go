@@ -19,6 +19,7 @@ func PrintEventLog(
 	minTime int32,
 	maxTime int32,
 	typeFilter int16,
+	statusFilter int,
 	errorClassConf string) {
 
 	filterString := "[blank]"
@@ -86,7 +87,7 @@ func PrintEventLog(
 
 	for i, _ := range *events {
 		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
-		if eventFilter(e, minTime, maxTime, typeFilter) {
+		if eventFilter(e, minTime, maxTime, typeFilter, statusFilter) {
 			fmt.Printf("Event ID: %d\n", e.ID)
 			fmt.Printf(
 				"  Start Time: %s\n",
