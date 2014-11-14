@@ -19,6 +19,7 @@ package feeds
 
 import (
 	"encoding/binary"
+	"fmt"
 	"github.com/cparo/perspective"
 	"image/png"
 	"io"
@@ -76,6 +77,37 @@ func GeneratePNGFromBinLog(
 	}
 
 	png.Encode(out, v.Render())
+}
+
+// GetSuccessRate reads a binary-log formatted event-data dump and writes out
+// the rate of successful event completions relative to all event completions
+// within the specified time range and event type filter criteria, encoded as
+// a string percentage value of up to five places (like "99.997%").
+func GetSuccessRate(
+	events *[]perspective.EventData,
+	tA int32,
+	tΩ int32,
+	typeFilter int16,
+	out io.Writer) {
+
+	var (
+		pass  = 0
+		total = 0
+	)
+	for i, _ := range *events {
+		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
+		if eventFilter(e, tA, tΩ, typeFilter, 4) {
+			pass++
+		}
+		if eventFilter(e, tA, tΩ, typeFilter, 6) {
+			total++
+		}
+	}
+	if total > 0 {
+		fmt.Fprintf(out, "%.3f%%", 100*float64(pass)/float64(total))
+	} else {
+		fmt.Fprint(out, "NaN%")
+	}
 }
 
 func MapBinLogFile(path string) *[]perspective.EventData {
