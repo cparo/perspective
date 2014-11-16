@@ -79,11 +79,11 @@ func (v *scatter) Record(e *EventData) {
 		// of successes.
 		c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ))
 	} else {
-		// In-progress events are shown as green points, desaturated like
-		// successful events are.
-		c.R = uint8(math.Min(saturated, float64(c.R)+v.cΔ/4))
+		// In-progress events are shown as green points, which are kept from
+		// desaturating similar to failures to help distinguish high-density
+		// clusters of in-progress events from clusters of successfully
+		// completed events.
 		c.G = uint8(math.Min(saturated, float64(c.G)+v.cΔ))
-		c.B = uint8(math.Min(saturated, float64(c.B)+v.cΔ/4))
 	}
 }
 
