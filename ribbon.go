@@ -25,6 +25,7 @@ import (
 type ribbon struct {
 	w    int     // Width of the visualization
 	h    int     // Height of the visualization
+	bg   int     // Background grey level
 	tA   float64 // Lower limit of time range to be visualized
 	tτ   float64 // Length of time range to be visualized
 	pass []int   // Successful events by x-axis position
@@ -36,7 +37,12 @@ type ribbon struct {
 }
 
 // NewRibbon returns a ribbon-visualization generator.
-func NewRibbon(width int, height int, minTime int, maxTime int) Visualizer {
+func NewRibbon(
+	width int,
+	height int,
+	bg int,
+	minTime int,
+	maxTime int) Visualizer {
 
 	// Max counts are initialized to 1 instead of 0 to avoid division-by-zero
 	// issues with feeds which do not contain examples of all three of
@@ -44,6 +50,7 @@ func NewRibbon(width int, height int, minTime int, maxTime int) Visualizer {
 	return &ribbon{
 		width,
 		height,
+		bg,
 		float64(minTime),
 		float64(maxTime - minTime),
 		make([]int, width),
@@ -80,7 +87,7 @@ func (v *ribbon) Record(e *EventData) {
 func (v *ribbon) Render() image.Image {
 
 	// Initialize our canvas.
-	vis := initializeVisualization(v.w, v.h)
+	vis := initializeVisualization(v.w, v.h, v.bg)
 
 	// Draw the ribbon. The ribbon's display is a simple representation of the
 	// number of passed and failed events which occurred within each pixel's
@@ -96,7 +103,7 @@ func (v *ribbon) Render() image.Image {
 	for x := 0; x < v.w; x++ {
 		r := saturated * float64(v.fail[x]) / fMax
 		b := saturated * float64(v.pass[x]) / pMax
-		w := bg + (saturated-bg)*float64(v.open[x])/oMax
+		w := float64(v.bg) + float64(saturated-v.bg)*float64(v.open[x])/oMax
 		for y := 0; y < v.h; y++ {
 			c := getRGBA(vis, x, y)
 			c.R = uint8(math.Min(saturated, w+r*float64(y)/h))

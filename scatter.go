@@ -36,6 +36,7 @@ type scatter struct {
 func NewScatter(
 	width int,
 	height int,
+	bg int,
 	minTime int,
 	maxTime int,
 	yLog2 float64,
@@ -45,7 +46,7 @@ func NewScatter(
 	return (&scatter{
 		width,
 		height,
-		initializeVisualization(width, height),
+		initializeVisualization(width, height, bg),
 		float64(minTime),
 		float64(maxTime - minTime),
 		float64(yLog2),

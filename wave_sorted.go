@@ -27,6 +27,7 @@ import (
 type sortedWave struct {
 	w   int          // Width of the visualization
 	h   int          // Height of the visualization
+	bg  int          // Background grey level
 	tA  float64      // Lower limit of time range to be visualized
 	tΩ  float64      // Upper limit of time range to be visualized
 	vis *image.RGBA  // Visualization canvas
@@ -36,14 +37,20 @@ type sortedWave struct {
 }
 
 // NewSortedWave returns a wave-sorted-visualization generator.
-func NewSortedWave(width int, height int, minTime int, maxTime int) Visualizer {
+func NewSortedWave(
+	width int,
+	height int,
+	bg int,
+	minTime int,
+	maxTime int) Visualizer {
 
 	return &sortedWave{
 		width,
 		height,
+		bg,
 		float64(minTime),
 		float64(maxTime),
-		initializeVisualization(width, height),
+		initializeVisualization(width, height, bg),
 		0,
 		[]*EventData{},
 		[]*EventData{}}
@@ -95,9 +102,9 @@ func (v *sortedWave) Record(e *EventData) {
 		for _, prog := range points {
 			Δ := saturated * prog
 			c := color.RGBA{
-				uint8(math.Min(saturated, float64(bg)+Δ/4)),
-				uint8(math.Min(saturated, float64(bg)+Δ/4)),
-				uint8(math.Min(saturated, float64(bg)+Δ)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ)),
 				opaque}
 			yPʹ := yP + 1
 			for ; yP < yPʹ; yP++ {
@@ -113,9 +120,9 @@ func (v *sortedWave) Record(e *EventData) {
 		for _, prog := range points {
 			Δ := saturated * prog
 			c := color.RGBA{
-				uint8(math.Min(saturated, float64(bg)+Δ)),
-				uint8(math.Min(saturated, float64(bg)+Δ/4)),
-				uint8(math.Min(saturated, float64(bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ/4)),
 				opaque}
 			yFʹ := yF + 1
 			for ; yF < yFʹ; yF++ {
