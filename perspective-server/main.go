@@ -52,6 +52,7 @@ type options struct {
 	yLog2        float64 // Number of pixels over which elapsed times double.
 	w            int     // Visualization width, in pixels.
 	h            int     // Visualization height, in pixels.
+	bg           int     // Graph background color.
 	colors       int     // The number of color steps before saturation.
 	feed         string  // Input feed name.
 }
@@ -59,47 +60,48 @@ type options struct {
 func init() {
 
 	handlers["vis-error-stack"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewErrorStack(r.w, r.h), out, r)
+		visualize(perspective.NewErrorStack(r.w, r.h, r.bg), out, r)
 	}
 
 	handlers["vis-histogram"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewHistogram(r.w, r.h, r.yLog2), out, r)
+		visualize(perspective.NewHistogram(r.w, r.h, r.bg, r.yLog2), out, r)
 	}
 
 	handlers["vis-ribbon"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewRibbon(r.w, r.h, r.tA, r.tΩ), out, r)
+		visualize(perspective.NewRibbon(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
 	}
 
 	handlers["vis-rolling-stack"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewRollingStack(r.w, r.h, r.tA, r.tΩ), out, r)
+		visualize(
+			perspective.NewRollingStack(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
 	}
 
 	handlers["vis-scatter"] = func(out http.ResponseWriter, r *options) {
 		visualize(
 			perspective.NewScatter(
-				r.w, r.h, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
+				r.w, r.h, r.bg, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
 			out,
 			r)
 	}
 
 	handlers["vis-status-stack"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewStatusStack(r.w, r.h), out, r)
+		visualize(perspective.NewStatusStack(r.w, r.h, r.bg), out, r)
 	}
 
 	handlers["vis-sweep"] = func(out http.ResponseWriter, r *options) {
 		visualize(
 			perspective.NewSweep(
-				r.w, r.h, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
+				r.w, r.h, r.bg, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
 			out,
 			r)
 	}
 
 	handlers["vis-wave"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewWave(r.w, r.h, r.tA, r.tΩ), out, r)
+		visualize(perspective.NewWave(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
 	}
 
 	handlers["vis-wave-sorted"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewSortedWave(r.w, r.h, r.tA, r.tΩ), out, r)
+		visualize(perspective.NewSortedWave(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
 	}
 }
 
@@ -303,6 +305,7 @@ func responder(response http.ResponseWriter, request *http.Request) {
 		f64Opt(values, "run-time-scale", 16),
 		intOpt(values, "width", 256),
 		intOpt(values, "height", 256),
+		intOpt(values, "bg", 33),
 		intOpt(values, "color-steps", 1),
 		strOpt(values, "feed", "")}
 

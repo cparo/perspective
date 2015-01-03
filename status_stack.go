@@ -23,15 +23,16 @@ import (
 )
 
 type statusStack struct {
-	w int           // Width of the visualization
-	h int           // Height of the visualization
-	n map[int16]int // Event counts by exit status code
-	σ float64       // Total count of recorded events
+	w  int           // Width of the visualization
+	h  int           // Height of the visualization
+	bg int           // Background grey level
+	n  map[int16]int // Event counts by exit status code
+	σ  float64       // Total count of recorded events
 }
 
 // NewStatusStack returns a status-stack-visualization generator.
-func NewStatusStack(width int, height int) Visualizer {
-	return &statusStack{width, height, make(map[int16]int), 0}
+func NewStatusStack(width int, height int, bg int) Visualizer {
+	return &statusStack{width, height, bg, make(map[int16]int), 0}
 }
 
 // Record accepts an EventData pointer and plots it onto the visualization.
@@ -51,7 +52,7 @@ func (v *statusStack) Record(e *EventData) {
 func (v *statusStack) Render() image.Image {
 
 	// Initialize our image canvas.
-	vis := initializeVisualization(v.w, v.h)
+	vis := initializeVisualization(v.w, v.h, v.bg)
 
 	// Draw the stack, giving each failure type a different color and scaling
 	// the overall stack stuck that each failure case occupies space

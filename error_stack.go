@@ -23,15 +23,16 @@ import (
 )
 
 type errorStack struct {
-	w int           // Width of the visualization
-	h int           // Height of the visualization
-	n map[int16]int // Event counts by exit status code
-	σ float64       // Total count of failed events
+	w  int           // Width of the visualization
+	h  int           // Height of the visualization
+	bg int           // Background grey level
+	n  map[int16]int // Event counts by exit status code
+	σ  float64       // Total count of failed events
 }
 
 // NewErrorStack returns an error-stack-visualization generator.
-func NewErrorStack(width int, height int) Visualizer {
-	return &errorStack{width, height, make(map[int16]int), 0}
+func NewErrorStack(width int, height int, bg int) Visualizer {
+	return &errorStack{width, height, bg, make(map[int16]int), 0}
 }
 
 // Record accepts an EventData pointer and plots it onto the visualization.
@@ -51,7 +52,7 @@ func (v *errorStack) Record(e *EventData) {
 func (v *errorStack) Render() image.Image {
 
 	// Initialize our image canvas.
-	vis := initializeVisualization(v.w, v.h)
+	vis := initializeVisualization(v.w, v.h, v.bg)
 
 	// Draw the stack, giving each failure type a different color and scaling
 	// the overall stack to fill the image canvas such that each failure case

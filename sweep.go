@@ -32,10 +32,11 @@ type sweep struct {
 	cΔ    float64     // Increment for color channel value increases
 }
 
-// NewSweep returns an sweep-visualization generator.
+// NewSweep returns a sweep-visualization generator.
 func NewSweep(
 	width int,
 	height int,
+	bg int,
 	minTime int,
 	maxTime int,
 	yLog2 float64,
@@ -45,7 +46,7 @@ func NewSweep(
 	return (&sweep{
 		width,
 		height,
-		initializeVisualization(width, height),
+		initializeVisualization(width, height, bg),
 		float64(minTime),
 		float64(maxTime),
 		float64(yLog2),

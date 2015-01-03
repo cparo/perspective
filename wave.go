@@ -26,6 +26,7 @@ import (
 type wave struct {
 	w   int          // Width of the visualization
 	h   int          // Height of the visualization
+	bg  int          // Background grey level.
 	tA  float64      // Lower limit of time range to be visualized
 	tΩ  float64      // Upper limit of time range to be visualized
 	vis *image.RGBA  // Visualization canvas
@@ -35,13 +36,19 @@ type wave struct {
 }
 
 // NewWave returns a wave-visualization generator.
-func NewWave(width int, height int, minTime int, maxTime int) Visualizer {
+func NewWave(
+	width int,
+	height int,
+	bg int,
+	minTime int,
+	maxTime int) Visualizer {
 	return &wave{
 		width,
 		height,
+		bg,
 		float64(minTime),
 		float64(maxTime),
-		initializeVisualization(width, height),
+		initializeVisualization(width, height, bg),
 		0,
 		[]*EventData{},
 		[]*EventData{}}
@@ -87,9 +94,9 @@ func (v *wave) Record(e *EventData) {
 			p := v.p[len(v.p)-i-1]
 			Δ := saturated * float64(e.Start-p.Start) / float64(p.Run+1)
 			c := color.RGBA{
-				uint8(math.Min(saturated, float64(bg)+Δ/4)),
-				uint8(math.Min(saturated, float64(bg)+Δ/4)),
-				uint8(math.Min(saturated, float64(bg)+Δ)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ)),
 				opaque}
 			yPʹ := yP + 1
 			for ; yP < yPʹ; yP++ {
@@ -100,9 +107,9 @@ func (v *wave) Record(e *EventData) {
 			f := v.f[len(v.f)-i-1]
 			Δ := saturated * float64(e.Start-f.Start) / float64(f.Run+1)
 			c := color.RGBA{
-				uint8(math.Min(saturated, float64(bg)+Δ)),
-				uint8(math.Min(saturated, float64(bg)+Δ/4)),
-				uint8(math.Min(saturated, float64(bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ/4)),
+				uint8(math.Min(saturated, float64(v.bg)+Δ/4)),
 				opaque}
 			yFʹ := yF + 1
 			for ; yF < yFʹ; yF++ {

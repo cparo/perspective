@@ -25,6 +25,7 @@ import (
 type rollingStack struct {
 	w  int             // Width of the visualization
 	h  int             // Height of the visualization
+	bg int             // Background grey level
 	tA float64         // Lower limit of time range to be visualized
 	tτ float64         // Length of time range to be visualized
 	n  map[int16][]int // Event counts by status and x-axis position
@@ -35,12 +36,14 @@ type rollingStack struct {
 func NewRollingStack(
 	width int,
 	height int,
+	bg int,
 	minTime int,
 	maxTime int) Visualizer {
 
 	return &rollingStack{
 		width,
 		height,
+		bg,
 		float64(minTime),
 		float64(maxTime - minTime),
 		make(map[int16][]int),
@@ -67,7 +70,7 @@ func (v *rollingStack) Record(e *EventData) {
 func (v *rollingStack) Render() image.Image {
 
 	// Initialize our image canvas.
-	vis := initializeVisualization(v.w, v.h)
+	vis := initializeVisualization(v.w, v.h, v.bg)
 
 	// Draw the rolling stack, giving each failure type a different color and
 	// scaling the height of the visualization to normalize for the overall

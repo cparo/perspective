@@ -25,7 +25,6 @@ import (
 )
 
 const (
-	bg        = 33    // Gray level for visualization backgrounds
 	grid      = 45    // Gray level for grid lines
 	opaque    = 255   // Alpha component of an opaque color value
 	saturated = 255   // Saturated 8-bit color value
@@ -102,9 +101,9 @@ func getRGBA(i *image.RGBA, x int, y int) *color.RGBA {
 }
 
 // Utility function for setting up a visualization canvas.
-func initializeVisualization(width int, height int) *image.RGBA {
+func initializeVisualization(width int, height int, bg int) *image.RGBA {
 	vis := image.NewRGBA(image.Rect(0, 0, width, height))
-	background := color.RGBA{bg, bg, bg, opaque}
+	background := color.RGBA{uint8(bg), uint8(bg), uint8(bg), opaque}
 	draw.Draw(vis, vis.Bounds(), &image.Uniform{background}, image.ZP, draw.Src)
 	return vis
 }

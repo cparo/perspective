@@ -26,16 +26,18 @@ import (
 type histogram struct {
 	w     int     // Width of the visualization
 	h     int     // Height of the visualization
+	bg    int     // Background grey level
 	yLog2 float64 // Number of pixels over which elapsed times double
 	pass  []int   // Counts of successful events by x-axis position
 	fail  []int   // Counts of failed events by x-axis position
 }
 
 // NewHistogram returns a histogram-visualization generator.
-func NewHistogram(width int, height int, yLog2 float64) Visualizer {
+func NewHistogram(width int, height int, bg int, yLog2 float64) Visualizer {
 	return &histogram{
 		width,
 		height,
+		bg,
 		yLog2,
 		make([]int, width),
 		make([]int, width)}
@@ -66,7 +68,7 @@ func (v *histogram) Record(e *EventData) {
 func (v *histogram) Render() image.Image {
 
 	// Initialize our image canvas and grid.
-	vis := initializeVisualization(v.w, v.h)
+	vis := initializeVisualization(v.w, v.h, v.bg)
 	v.drawGrid(vis)
 
 	// Find the highest point of the histogram to normalize the height of the
