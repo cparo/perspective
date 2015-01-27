@@ -18,7 +18,7 @@ func PrintEventLog(
 	iPath string,
 	minTime int32,
 	maxTime int32,
-	typeFilter int16,
+	typeFilter int,
 	statusFilter int,
 	errorClassConf string) {
 

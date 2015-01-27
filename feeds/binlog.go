@@ -38,7 +38,7 @@ func DumpEventData(
 	events *[]perspective.EventData,
 	tA int32,
 	tΩ int32,
-	typeFilter int16,
+	typeFilter int,
 	statusFilter int,
 	out io.Writer) {
 
@@ -50,6 +50,7 @@ func DumpEventData(
 			binary.Write(out, binary.LittleEndian, int32(e.Run))
 			binary.Write(out, binary.LittleEndian, int32(e.Type))
 			binary.Write(out, binary.LittleEndian, int32(e.Status))
+			binary.Write(out, binary.LittleEndian, int32(e.Progress))
 		}
 	}
 }
@@ -61,7 +62,7 @@ func GeneratePNGFromBinLog(
 	events *[]perspective.EventData,
 	tA int32,
 	tΩ int32,
-	typeFilter int16,
+	typeFilter int,
 	statusFilter int,
 	v perspective.Visualizer,
 	out io.Writer) {
@@ -87,7 +88,7 @@ func GetSuccessRate(
 	events *[]perspective.EventData,
 	tA int32,
 	tΩ int32,
-	typeFilter int16,
+	typeFilter int,
 	out io.Writer) {
 
 	var (

@@ -150,7 +150,7 @@ func dumpEventData(out http.ResponseWriter, r *options) {
 		sources[path],
 		int32(r.tA),
 		int32(r.tΩ),
-		int16(r.typeFilter),
+		r.typeFilter,
 		r.statusFilter,
 		out)
 }
@@ -213,7 +213,7 @@ func getSuccessRate(out http.ResponseWriter, r *options) {
 		sources[path],
 		int32(r.tA),
 		int32(r.tΩ),
-		int16(r.typeFilter),
+		r.typeFilter,
 		out)
 }
 
@@ -467,7 +467,7 @@ func visualize(
 		sources[path],
 		int32(r.tA),
 		int32(r.tΩ),
-		int16(r.typeFilter),
+		r.typeFilter,
 		r.statusFilter,
 		v,
 		out)

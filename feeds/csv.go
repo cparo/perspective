@@ -36,7 +36,7 @@ func ConvertCSVToBinary(
 	oPath string,
 	minTime int32,
 	maxTime int32,
-	typeFilter int16,
+	typeFilter int,
 	statusFilter int,
 	errorReasonFilterConf string) {
 
@@ -96,8 +96,9 @@ func ConvertCSVToBinary(
 	binWriter := bufio.NewWriter(oFile)
 
 	var (
-		eventData  perspective.EventData
-		fieldValue int64
+		eventData     perspective.EventData
+		signedValue   int64
+		unsignedValue uint64
 	)
 
 	for {
@@ -111,19 +112,21 @@ func ConvertCSVToBinary(
 		// 1) event_type_id
 		// 2) event_start_time (in seconds since UNIX epoch)
 		// 3) event_run_time (in seconds)
-		// 4) exit_status (success if 0, else failure)
-		// 5) errror_reason (text field)
-		if len(fields) != 6 {
+		// 4) exit_status (success if 0, >0 for failure, <0 for in-progress)
+		// 5) event_region (region identifier)
+		// 6) event_progress (percentage value)
+		// 7) errror_reason (text field)
+		if len(fields) != 8 {
 			panic("Incorrect field count in filter config.")
 		}
 
-		fieldValue, err = strconv.ParseInt(fields[1], 10, 16)
+		unsignedValue, err = strconv.ParseUint(fields[1], 10, 8)
 		panicOnError(err, "Error encountered parsing event type.")
-		eventData.Type = int16(fieldValue)
+		eventData.Type = uint8(unsignedValue)
 
-		fieldValue, err = strconv.ParseInt(fields[2], 10, 32)
+		signedValue, err = strconv.ParseInt(fields[2], 10, 32)
 		panicOnError(err, "Error encountered parsing event start time.")
-		eventData.Start = int32(fieldValue)
+		eventData.Start = int32(signedValue)
 
 		if eventFilter(
 			&eventData,
@@ -132,22 +135,30 @@ func ConvertCSVToBinary(
 			typeFilter,
 			statusFilter) {
 
-			fieldValue, err = strconv.ParseInt(fields[0], 10, 32)
+			signedValue, err = strconv.ParseInt(fields[0], 10, 32)
 			panicOnError(err, "Error encountered parsing event ID.")
-			eventData.ID = int32(fieldValue)
+			eventData.ID = int32(signedValue)
 
-			fieldValue, err = strconv.ParseInt(fields[3], 10, 32)
+			signedValue, err = strconv.ParseInt(fields[3], 10, 32)
 			panicOnError(err, "Error encountered parsing event run time.")
-			eventData.Run = int32(fieldValue)
+			eventData.Run = int32(signedValue)
 
-			fieldValue, err = strconv.ParseInt(fields[4], 10, 16)
+			signedValue, err = strconv.ParseInt(fields[4], 10, 8)
 			panicOnError(err, "Error encountered parsing event status.")
-			if fieldValue > 0 {
-				eventData.Status = getErrorCode(fields[5], errorFilters)
+			if signedValue > 0 {
+				eventData.Status = getErrorCode(fields[7], errorFilters)
 			} else {
 				// Event is successful (0) or in-progress (negative)
-				eventData.Status = int16(fieldValue)
+				eventData.Status = int8(signedValue)
 			}
+
+			unsignedValue, err = strconv.ParseUint(fields[5], 10, 8)
+			panicOnError(err, "Error encountered parsing event region.")
+			eventData.Region = uint8(unsignedValue)
+
+			unsignedValue, err = strconv.ParseUint(fields[6], 10, 8)
+			panicOnError(err, "Error encountered parsing event progress.")
+			eventData.Progress = uint8(unsignedValue)
 
 			panicOnError(
 				binary.Write(binWriter, binary.LittleEndian, eventData),
@@ -170,11 +181,11 @@ func atEOF(err error, message string) bool {
 	return false
 }
 
-func getErrorCode(errorReason string, errorFilters []*regexp.Regexp) int16 {
+func getErrorCode(errorReason string, errorFilters []*regexp.Regexp) int8 {
 	var i int
 	for i = 0; i < len(errorFilters); i++ {
 		if errorFilters[i].MatchString(errorReason) {
-			return int16(i + 1)
+			return int8(i + 1)
 		}
 	}
 	// Implied "other" case, which will return a value one past the last value
@@ -182,5 +193,5 @@ func getErrorCode(errorReason string, errorFilters []*regexp.Regexp) int16 {
 	// matched the errorReason we were given. Note that the error codes start at
 	// 1, not 0, so in the example case of our having four error reason filters
 	// (including one for a blank error reason), this will be code 5, not 4.
-	return int16(i + 1)
+	return int8(i + 1)
 }

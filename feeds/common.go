@@ -26,10 +26,10 @@ func eventFilter(
 	event *perspective.EventData,
 	minTime int32,
 	maxTime int32,
-	typeFilter int16,
+	typeFilter int,
 	statusFilter int) bool {
 	if minTime < event.Start && maxTime > event.Start {
-		if typeFilter < 0 || event.Type == typeFilter {
+		if typeFilter < 0 || int(event.Type) == typeFilter {
 			if event.Status == 0 && 4&statusFilter != 0 {
 				return true // Done
 			}

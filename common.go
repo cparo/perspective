@@ -34,11 +34,13 @@ const (
 // Struct to represent data to submit to the visualization generators, and to be
 // used for the binary log format.
 type EventData struct {
-	ID     int32 // Event identifier.
-	Start  int32 // In seconds since the beginning of the Unix epoch.
-	Run    int32 // Event run time, in seconds.
-	Type   int16 // Event type indication.
-	Status int16 // 0 for success, >0 for failure, <0 for in-progress.
+	ID       int32 // Event identifier.
+	Start    int32 // In seconds since the beginning of the Unix epoch.
+	Run      int32 // Event run time, in seconds.
+	Type     uint8 // Event type indication.
+	Status   int8  // 0 for success, >0 for failure, <0 for in-progress.
+	Region   uint8 // Region identifier, 0 if undefined.
+	Progress uint8 // Event progress percentage.
 }
 
 // Abstract interface for visualization generators.

@@ -55,7 +55,7 @@ func init() {
 			oPath,
 			int32(tA),
 			int32(tΩ),
-			int16(typeFilter),
+			typeFilter,
 			statusFilter,
 			errorClassConf)
 	}
@@ -65,7 +65,7 @@ func init() {
 			iPath,
 			int32(tA),
 			int32(tΩ),
-			int16(typeFilter),
+			typeFilter,
 			statusFilter,
 			errorClassConf)
 	}
@@ -208,7 +208,7 @@ func visualize(v perspective.Visualizer) {
 		feeds.MapBinLogFile(iPath),
 		int32(tA),
 		int32(tΩ),
-		int16(typeFilter),
+		typeFilter,
 		statusFilter,
 		v,
 		out)
