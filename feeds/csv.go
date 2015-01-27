@@ -37,6 +37,7 @@ func ConvertCSVToBinary(
 	minTime int32,
 	maxTime int32,
 	typeFilter int,
+	regionFilter int,
 	statusFilter int,
 	errorReasonFilterConf string) {
 
@@ -133,6 +134,7 @@ func ConvertCSVToBinary(
 			minTime,
 			maxTime,
 			typeFilter,
+			regionFilter,
 			statusFilter) {
 
 			signedValue, err = strconv.ParseInt(fields[0], 10, 32)

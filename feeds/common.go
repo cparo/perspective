@@ -27,17 +27,20 @@ func eventFilter(
 	minTime int32,
 	maxTime int32,
 	typeFilter int,
+	regionFilter int,
 	statusFilter int) bool {
 	if minTime < event.Start && maxTime > event.Start {
 		if typeFilter < 0 || int(event.Type) == typeFilter {
-			if event.Status == 0 && 4&statusFilter != 0 {
-				return true // Done
-			}
-			if event.Status > 0 && 2&statusFilter != 0 {
-				return true // Failed
-			}
-			if event.Status < 0 && 1&statusFilter != 0 {
-				return true // Running
+			if regionFilter < 0 || int(event.Region) == regionFilter {
+				if event.Status == 0 && 4&statusFilter != 0 {
+					return true // Done
+				}
+				if event.Status > 0 && 2&statusFilter != 0 {
+					return true // Failed
+				}
+				if event.Status < 0 && 1&statusFilter != 0 {
+					return true // Running
+				}
 			}
 		}
 	}
