@@ -51,6 +51,7 @@ func DumpEventData(
 			binary.Write(out, binary.LittleEndian, int32(e.Run))
 			binary.Write(out, binary.LittleEndian, int32(e.Type))
 			binary.Write(out, binary.LittleEndian, int32(e.Status))
+			binary.Write(out, binary.LittleEndian, int32(e.Region))
 			binary.Write(out, binary.LittleEndian, int32(e.Progress))
 		}
 	}
