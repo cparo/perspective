@@ -40,6 +40,7 @@ var (
 	yLog2          float64 // Number of pixels over which elapsed times double.
 	w              int     // Visualization width, in pixels.
 	h              int     // Visualization height, in pixels.
+	bg             int     // Graph background color.
 	colors         int     // The number of color steps before saturation.
 	action         string  // Indication of action to be taken.
 	iPath          string  // Filesystem path for input.
@@ -70,39 +71,40 @@ func init() {
 	}
 
 	handlers["vis-error-stack"] = func() {
-		visualize(perspective.NewErrorStack(w, h))
+		visualize(perspective.NewErrorStack(w, h, bg))
 	}
 
 	handlers["vis-histogram"] = func() {
-		visualize(perspective.NewHistogram(w, h, yLog2))
+		visualize(perspective.NewHistogram(w, h, bg, yLog2))
 	}
 
 	handlers["vis-ribbon"] = func() {
-		visualize(perspective.NewRibbon(w, h, tA, tΩ))
+		visualize(perspective.NewRibbon(w, h, bg, tA, tΩ))
 	}
 
 	handlers["vis-rolling-stack"] = func() {
-		visualize(perspective.NewRollingStack(w, h, tA, tΩ))
+		visualize(perspective.NewRollingStack(w, h, bg, tA, tΩ))
 	}
 
 	handlers["vis-scatter"] = func() {
-		visualize(perspective.NewScatter(w, h, tA, tΩ, yLog2, colors, xGrid))
+		visualize(
+			perspective.NewScatter(w, h, bg, tA, tΩ, yLog2, colors, xGrid))
 	}
 
 	handlers["vis-status-stack"] = func() {
-		visualize(perspective.NewStatusStack(w, h))
+		visualize(perspective.NewStatusStack(w, h, bg))
 	}
 
 	handlers["vis-sweep"] = func() {
-		visualize(perspective.NewSweep(w, h, tA, tΩ, yLog2, colors, xGrid))
+		visualize(perspective.NewSweep(w, h, bg, tA, tΩ, yLog2, colors, xGrid))
 	}
 
 	handlers["vis-wave"] = func() {
-		visualize(perspective.NewWave(w, h, tA, tΩ))
+		visualize(perspective.NewWave(w, h, bg, tA, tΩ))
 	}
 
 	handlers["vis-wave-sorted"] = func() {
-		visualize(perspective.NewSortedWave(w, h, tA, tΩ))
+		visualize(perspective.NewSortedWave(w, h, bg, tA, tΩ))
 	}
 }
 
@@ -161,6 +163,12 @@ func main() {
 		"height",
 		128,
 		"Height of the rendered graph, in pixels.")
+
+	flag.IntVar(
+		&bg,
+		"bg",
+		32,
+		"Background gray level.")
 
 	flag.IntVar(
 		&colors,
