@@ -38,18 +38,21 @@ func DumpEventData(
 	events *[]perspective.EventData,
 	tA int32,
 	tΩ int32,
-	typeFilter int16,
+	typeFilter int,
+	regionFilter int,
 	statusFilter int,
 	out io.Writer) {
 
 	for i, _ := range *events {
 		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
-		if eventFilter(e, tA, tΩ, typeFilter, statusFilter) {
+		if eventFilter(e, tA, tΩ, typeFilter, regionFilter, statusFilter) {
 			binary.Write(out, binary.LittleEndian, int32(e.ID))
 			binary.Write(out, binary.LittleEndian, int32(e.Start))
 			binary.Write(out, binary.LittleEndian, int32(e.Run))
 			binary.Write(out, binary.LittleEndian, int32(e.Type))
 			binary.Write(out, binary.LittleEndian, int32(e.Status))
+			binary.Write(out, binary.LittleEndian, int32(e.Region))
+			binary.Write(out, binary.LittleEndian, int32(e.Progress))
 		}
 	}
 }
@@ -61,7 +64,8 @@ func GeneratePNGFromBinLog(
 	events *[]perspective.EventData,
 	tA int32,
 	tΩ int32,
-	typeFilter int16,
+	typeFilter int,
+	regionFilter int,
 	statusFilter int,
 	v perspective.Visualizer,
 	out io.Writer) {
@@ -71,7 +75,7 @@ func GeneratePNGFromBinLog(
 	// visualization through the HTTP API.
 	for i, _ := range *events {
 		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
-		if eventFilter(e, tA, tΩ, typeFilter, statusFilter) {
+		if eventFilter(e, tA, tΩ, typeFilter, regionFilter, statusFilter) {
 			v.Record(e)
 		}
 	}
@@ -87,7 +91,8 @@ func GetSuccessRate(
 	events *[]perspective.EventData,
 	tA int32,
 	tΩ int32,
-	typeFilter int16,
+	typeFilter int,
+	regionFilter int,
 	out io.Writer) {
 
 	var (
@@ -96,10 +101,10 @@ func GetSuccessRate(
 	)
 	for i, _ := range *events {
 		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
-		if eventFilter(e, tA, tΩ, typeFilter, 4) {
+		if eventFilter(e, tA, tΩ, typeFilter, regionFilter, 4) {
 			pass++
 		}
-		if eventFilter(e, tA, tΩ, typeFilter, 6) {
+		if eventFilter(e, tA, tΩ, typeFilter, regionFilter, 6) {
 			total++
 		}
 	}

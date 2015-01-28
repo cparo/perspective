@@ -18,7 +18,8 @@ func PrintEventLog(
 	iPath string,
 	minTime int32,
 	maxTime int32,
-	typeFilter int16,
+	typeFilter int,
+	regionFilter int,
 	statusFilter int,
 	errorClassConf string) {
 
@@ -87,7 +88,8 @@ func PrintEventLog(
 
 	for i, _ := range *events {
 		e := (*perspective.EventData)(unsafe.Pointer(&(*events)[i]))
-		if eventFilter(e, minTime, maxTime, typeFilter, statusFilter) {
+		if eventFilter(
+			e, minTime, maxTime, typeFilter, regionFilter, statusFilter) {
 			fmt.Printf("Event ID: %d\n", e.ID)
 			fmt.Printf(
 				"  Start Time: %s\n",

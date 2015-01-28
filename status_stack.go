@@ -23,16 +23,16 @@ import (
 )
 
 type statusStack struct {
-	w  int           // Width of the visualization
-	h  int           // Height of the visualization
-	bg int           // Background grey level
-	n  map[int16]int // Event counts by exit status code
-	σ  float64       // Total count of recorded events
+	w  int          // Width of the visualization
+	h  int          // Height of the visualization
+	bg int          // Background grey level
+	n  map[int8]int // Event counts by exit status code
+	σ  float64      // Total count of recorded events
 }
 
 // NewStatusStack returns a status-stack-visualization generator.
 func NewStatusStack(width int, height int, bg int) Visualizer {
-	return &statusStack{width, height, bg, make(map[int16]int), 0}
+	return &statusStack{width, height, bg, make(map[int8]int), 0}
 }
 
 // Record accepts an EventData pointer and plots it onto the visualization.
@@ -40,7 +40,7 @@ func (v *statusStack) Record(e *EventData) {
 	// Ignore in-progress events, record all others.
 	if e.Status >= 0 {
 		for int(e.Status)+1 > len(v.n) {
-			v.n[int16(len(v.n))] = 0
+			v.n[int8(len(v.n))] = 0
 		}
 		v.n[e.Status]++
 		v.σ++
@@ -61,7 +61,7 @@ func (v *statusStack) Render() image.Image {
 	y := 0
 	for i := 1; i <= len(v.n); i++ {
 		color := getErrorStackColor(i, len(v.n))
-		yʹ := y + int(math.Ceil(float64(v.n[int16(i)]*v.h)/v.σ))
+		yʹ := y + int(math.Ceil(float64(v.n[int8(i)]*v.h)/v.σ))
 		for ; y < yʹ; y++ {
 			for x := 0; x < v.w; x++ {
 				vis.Set(x, v.h-y, color)

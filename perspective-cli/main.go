@@ -33,6 +33,7 @@ var handlers = make(map[string]func())
 var (
 	errorClassConf string  // Optional conf file for error classification.
 	typeFilter     int     // Event type to filter for, if non-negative.
+	regionFilter   int     // Region to filter for, if non-negative.
 	statusFilter   int     // Least significant bits: {done, failed, running}.
 	tA             int     // Lower limit of time range to be visualized.
 	tΩ             int     // Upper limit of time range to be visualized.
@@ -55,7 +56,8 @@ func init() {
 			oPath,
 			int32(tA),
 			int32(tΩ),
-			int16(typeFilter),
+			typeFilter,
+			regionFilter,
 			statusFilter,
 			errorClassConf)
 	}
@@ -65,7 +67,8 @@ func init() {
 			iPath,
 			int32(tA),
 			int32(tΩ),
-			int16(typeFilter),
+			typeFilter,
+			regionFilter,
 			statusFilter,
 			errorClassConf)
 	}
@@ -121,6 +124,12 @@ func main() {
 		"event-type-id",
 		-1,
 		"Event type ID to filter for.")
+
+	flag.IntVar(
+		&regionFilter,
+		"region-id",
+		-1,
+		"Event region ID to filter for.")
 
 	flag.IntVar(
 		&statusFilter,
@@ -208,7 +217,8 @@ func visualize(v perspective.Visualizer) {
 		feeds.MapBinLogFile(iPath),
 		int32(tA),
 		int32(tΩ),
-		int16(typeFilter),
+		typeFilter,
+		regionFilter,
 		statusFilter,
 		v,
 		out)

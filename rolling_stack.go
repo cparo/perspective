@@ -23,13 +23,13 @@ import (
 )
 
 type rollingStack struct {
-	w  int             // Width of the visualization
-	h  int             // Height of the visualization
-	bg int             // Background grey level
-	tA float64         // Lower limit of time range to be visualized
-	tτ float64         // Length of time range to be visualized
-	n  map[int16][]int // Event counts by status and x-axis position
-	σ  []float64       // Event totals by and x-axis position
+	w  int            // Width of the visualization
+	h  int            // Height of the visualization
+	bg int            // Background grey level
+	tA float64        // Lower limit of time range to be visualized
+	tτ float64        // Length of time range to be visualized
+	n  map[int8][]int // Event counts by status and x-axis position
+	σ  []float64      // Event totals by and x-axis position
 }
 
 // NewRollingStack returns a rolling-stack-visualization generator.
@@ -46,7 +46,7 @@ func NewRollingStack(
 		bg,
 		float64(minTime),
 		float64(maxTime - minTime),
-		make(map[int16][]int),
+		make(map[int8][]int),
 		make([]float64, width)}
 }
 
@@ -55,7 +55,7 @@ func (v *rollingStack) Record(e *EventData) {
 	if e.Status >= 0 {
 		// Ignore in-progress events, record all completed and failed events.
 		for int(e.Status)+1 > len(v.n) {
-			v.n[int16(len(v.n))] = make([]int, v.w)
+			v.n[int8(len(v.n))] = make([]int, v.w)
 		}
 		w := float64(v.w)
 		s := float64(e.Start)
@@ -83,7 +83,7 @@ func (v *rollingStack) Render() image.Image {
 		for i := 1; i < len(v.n); i++ {
 			color := getErrorStackColor(i, len(v.n))
 			if v.σ[x] > 0 {
-				yʹ := y + int(float64(v.n[int16(i)][x]*v.h)/v.σ[x])
+				yʹ := y + int(float64(v.n[int8(i)][x]*v.h)/v.σ[x])
 				for ; y < yʹ; y++ {
 					vis.Set(x, v.h-y, color)
 				}

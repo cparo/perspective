@@ -46,6 +46,7 @@ var mTimes = make(map[string]time.Time)
 type options struct {
 	statusFilter int     // Least significant bits: {done, failed, running}.
 	typeFilter   int     // Event type to filter for, if non-negative.
+	regionFilter int     // Region to filter for, if non-negative.
 	tA           int     // Lower limit of time range to be visualized.
 	tΩ           int     // Upper limit of time range to be visualized.
 	xGrid        int     // Number of horizontal grid divisions.
@@ -150,7 +151,8 @@ func dumpEventData(out http.ResponseWriter, r *options) {
 		sources[path],
 		int32(r.tA),
 		int32(r.tΩ),
-		int16(r.typeFilter),
+		r.typeFilter,
+		r.regionFilter,
 		r.statusFilter,
 		out)
 }
@@ -213,7 +215,8 @@ func getSuccessRate(out http.ResponseWriter, r *options) {
 		sources[path],
 		int32(r.tA),
 		int32(r.tΩ),
-		int16(r.typeFilter),
+		r.typeFilter,
+		r.regionFilter,
 		out)
 }
 
@@ -299,6 +302,7 @@ func responder(response http.ResponseWriter, request *http.Request) {
 	options := &options{
 		intOpt(values, "status-filter", -1),
 		intOpt(values, "event-type", -1),
+		intOpt(values, "region", -1),
 		timeOpt(values, "min-time", 0),
 		timeOpt(values, "max-time", int(time.Now().Unix())),
 		intOpt(values, "x-grid", 0),
@@ -467,7 +471,8 @@ func visualize(
 		sources[path],
 		int32(r.tA),
 		int32(r.tΩ),
-		int16(r.typeFilter),
+		r.typeFilter,
+		r.regionFilter,
 		r.statusFilter,
 		v,
 		out)
