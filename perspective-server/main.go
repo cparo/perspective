@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/cparo/perspective"
 	"github.com/cparo/perspective/feeds"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -31,6 +32,7 @@ import (
 )
 
 const dataPath = "/var/opt/perspective/feeds/"
+const stagePath = "/var/opt/perspective/feeds/stage/"
 const staticContentPath = "/var/opt/perspective/static/"
 
 // Mapping of action names to handler functions:
@@ -294,6 +296,51 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
+func receiveEventData(request *http.Request, response http.ResponseWriter) {
+
+	file, header, err := request.FormFile("file")
+	if err != nil {
+		log.Printf("Failed to handle post request.")
+		http.Error(
+			response,
+			fmt.Sprintf("File Upload Failed"),
+			500)
+		return
+	}
+
+	feed, err := os.Create(stagePath + header.Filename)
+	if err != nil {
+		log.Printf("Failed to create feed file.")
+		http.Error(
+			response,
+			fmt.Sprintf("File Upload Failed"),
+			500)
+		return
+	}
+
+	defer feed.Close()
+
+	_, err = io.Copy(feed, file)
+	if err != nil {
+		log.Printf("Failed to write to feed file.")
+		http.Error(
+			response,
+			fmt.Sprintf("File Upload Failed"),
+			500)
+		return
+	}
+
+	err = os.Rename(stagePath + header.Filename, dataPath + header.Filename)
+	if err != nil {
+		log.Printf("Failed to move feed file from staging directory.")
+		http.Error(
+			response,
+			fmt.Sprintf("File Upload Failed"),
+			500)
+		return
+	}
+}
+
 func responder(response http.ResponseWriter, request *http.Request) {
 
 	// Parse options, using the same defaults as are used by the CLI interface
@@ -326,6 +373,12 @@ func responder(response http.ResponseWriter, request *http.Request) {
 	// Special case to handle a request for a success-rate percentage.
 	if action == "success-rate" {
 		getSuccessRate(response, options)
+		return
+	}
+
+	// Special case to handle a request for to push feed data.
+	if action == "post-data" {
+		receiveEventData(request, response)
 		return
 	}
 
