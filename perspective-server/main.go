@@ -273,7 +273,10 @@ func responder(response http.ResponseWriter, request *http.Request) {
 	if handler, exists := handlers[action]; exists {
 		handler(response, options)
 	} else {
-		msg := fmt.Sprintf("Unrecognized action: %s", action)
+		msg := fmt.Sprintf(
+			"Unrecognized action: \"%s\" from %s",
+			action,
+			request.RemoteAddr)
 		log.Println(msg)
 		http.Error(response, msg, 501)
 	}
