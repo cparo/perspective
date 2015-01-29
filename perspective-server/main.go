@@ -30,7 +30,7 @@ import (
 	"time"
 )
 
-const dataPath = "/var/opt/perspective/"
+const dataPath = "/var/opt/perspective/feeds/"
 const staticContentPath = "/var/opt/perspective/static/"
 
 // Mapping of action names to handler functions:
