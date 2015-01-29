@@ -308,6 +308,8 @@ func receiveEventData(request *http.Request, response http.ResponseWriter) {
 		return
 	}
 
+	defer file.Close()
+
 	feed, err := os.Create(stagePath + header.Filename)
 	if err != nil {
 		log.Printf("Failed to create feed file.")
