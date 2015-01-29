@@ -176,6 +176,28 @@ func logMalformedOption(name string, value string) {
 }
 
 func main() {
+
+	// Make sure we have a valid set of paths, and bail with a clear explanation
+	// if we can't find or create them:
+	if os.MkdirAll(dataPath, 0700) != nil {
+		log.Printf(
+			"Failed to create missing data directory at \"%s\"\n",
+			dataPath)
+		os.Exit(1)
+	}
+	if os.MkdirAll(stagePath, 0700) != nil {
+		log.Printf(
+			"Failed to create missing data staging directory at \"%s\"\n",
+			dataPath)
+		os.Exit(1)
+	}
+	if os.MkdirAll(staticContentPath, 0700) != nil {
+		log.Printf(
+			"Failed to create missing static-content directory at \"%s\"\n",
+			staticContentPath)
+		os.Exit(1)
+	}
+
 	http.HandleFunc("/", responder)
 	fs := http.FileServer(http.Dir(staticContentPath))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
