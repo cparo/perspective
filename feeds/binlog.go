@@ -23,6 +23,7 @@ import (
 	"github.com/cparo/perspective"
 	"image/png"
 	"io"
+	"log"
 	"os"
 	"reflect"
 	"syscall"
@@ -118,11 +119,18 @@ func GetSuccessRate(
 func MapBinLogFile(path string) *[]perspective.EventData {
 
 	iFile, err := os.Open(path)
-	panicOnError(err, "Failed to open input file for reading.")
+	if err != nil {
+		log.Println("Failed to open input file for reading.")
+		return nil
+	}
+
 	defer iFile.Close()
 
 	iStat, err := iFile.Stat()
-	panicOnError(err, "Failed to stat input file.")
+	if err != nil {
+		log.Println("Failed to stat input file.")
+		return nil
+	}
 
 	fileSize := int(iStat.Size())
 
@@ -132,7 +140,10 @@ func MapBinLogFile(path string) *[]perspective.EventData {
 		fileSize,
 		syscall.PROT_READ,
 		syscall.MAP_PRIVATE)
-	panicOnError(err, "Failed to mmap input file.")
+	if err != nil {
+		log.Println("Failed to mmap input file.")
+		return nil
+	}
 
 	// Using this mmap-and-cast method of parsing the input log instead of the
 	// more idiomatic use of Go's bufio and encoding/binary packages for reading
@@ -154,4 +165,15 @@ func MapBinLogFile(path string) *[]perspective.EventData {
 	header.Cap /= int(unsafe.Sizeof(perspective.EventData{}))
 
 	return events
+}
+
+func UnmapBinLogFile(eventData *[]perspective.EventData) error {
+
+	mapping := (*[]byte)(unsafe.Pointer(eventData))
+
+	header := (*reflect.SliceHeader)(unsafe.Pointer(eventData))
+	header.Len *= int(unsafe.Sizeof(perspective.EventData{}))
+	header.Cap *= int(unsafe.Sizeof(perspective.EventData{}))
+
+	return syscall.Munmap(*mapping)
 }

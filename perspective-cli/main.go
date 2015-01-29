@@ -213,8 +213,13 @@ func visualize(v perspective.Visualizer) {
 		os.Exit(1)
 	}
 
+	eventData := feeds.MapBinLogFile(iPath)
+	if eventData == nil {
+		os.Exit(1)
+	}
+
 	feeds.GeneratePNGFromBinLog(
-		feeds.MapBinLogFile(iPath),
+		eventData,
 		int32(tA),
 		int32(tΩ),
 		typeFilter,
