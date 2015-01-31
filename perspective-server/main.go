@@ -179,20 +179,26 @@ func main() {
 
 	// Make sure we have a valid set of paths, and bail with a clear explanation
 	// if we can't find or create them:
-	if os.MkdirAll(dataPath, 0700) != nil {
-		log.Fatalf(
+	err := os.MkdirAll(dataPath, 0700)
+	if err != nil {
+		log.Printf(
 			"Failed to create missing data directory at \"%s\"\n",
 			dataPath)
+		log.Fatalln(err)
 	}
-	if os.MkdirAll(stagePath, 0700) != nil {
-		log.Fatalf(
+	err = os.MkdirAll(stagePath, 0700)
+	if err != nil {
+		log.Printf(
 			"Failed to create missing data staging directory at \"%s\"\n",
 			dataPath)
+		log.Fatalln(err)
 	}
-	if os.MkdirAll(staticContentPath, 0700) != nil {
-		log.Fatalf(
+	err = os.MkdirAll(staticContentPath, 0700)
+	if err != nil {
+		log.Printf(
 			"Failed to create missing static-content directory at \"%s\"\n",
 			staticContentPath)
+		log.Fatalln(err)
 	}
 
 	http.HandleFunc("/", responder)
