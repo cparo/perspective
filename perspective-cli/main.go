@@ -188,8 +188,7 @@ func main() {
 	flag.Parse()
 
 	if flag.NArg() != 3 {
-		log.Println("Incorrect argument count.")
-		os.Exit(1)
+		log.Fatalln("Incorrect argument count.")
 	}
 
 	action = flag.Arg(0)
@@ -199,8 +198,7 @@ func main() {
 	if handler, exists := handlers[action]; exists {
 		handler()
 	} else {
-		log.Println("Unrecognized action.")
-		os.Exit(1)
+		log.Fatalln("Unrecognized action.")
 	}
 }
 
@@ -209,13 +207,12 @@ func visualize(v perspective.Visualizer) {
 	out, err := os.Create(oPath)
 	if err != nil {
 		log.Println("Failed to open output file for writing.")
-		log.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 
 	eventData := feeds.MapBinLogFile(iPath)
 	if eventData == nil {
-		os.Exit(1)
+		log.Fatalln("Failed to parse data feed.")
 	}
 
 	feeds.GeneratePNGFromBinLog(
