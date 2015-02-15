@@ -50,7 +50,7 @@ type options struct {
 	w            int     // Visualization width, in pixels.
 	h            int     // Visualization height, in pixels.
 	bg           int     // Graph background color.
-	colors       int     // The number of color steps before saturation.
+	colors       float64 // The number of color steps before saturation.
 	feed         string  // Input feed name.
 }
 
@@ -76,6 +76,14 @@ func init() {
 	handlers["vis-scatter"] = func(out http.ResponseWriter, r *options) {
 		visualize(
 			perspective.NewScatter(
+				r.w, r.h, r.bg, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
+			out,
+			r)
+	}
+
+	handlers["vis-starfield"] = func(out http.ResponseWriter, r *options) {
+		visualize(
+			perspective.NewStarfield(
 				r.w, r.h, r.bg, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
 			out,
 			r)
@@ -243,7 +251,7 @@ func receiveEventData(request *http.Request, response http.ResponseWriter) {
 		return
 	}
 
-	err = os.Rename(stagePath + header.Filename, dataPath + header.Filename)
+	err = os.Rename(stagePath+header.Filename, dataPath+header.Filename)
 	if err != nil {
 		log.Printf("Failed to move feed file from staging directory.")
 		http.Error(
@@ -270,7 +278,7 @@ func responder(response http.ResponseWriter, request *http.Request) {
 		intOpt(values, "width", 256),
 		intOpt(values, "height", 256),
 		intOpt(values, "bg", 33),
-		intOpt(values, "color-steps", 1),
+		f64Opt(values, "color-steps", 1),
 		strOpt(values, "feed", "")}
 
 	action := request.URL.Path[1:]

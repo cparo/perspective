@@ -40,7 +40,7 @@ func NewSweep(
 	minTime int,
 	maxTime int,
 	yLog2 float64,
-	colorSteps int,
+	colorSteps float64,
 	xGrid int) Visualizer {
 
 	return (&sweep{
@@ -50,7 +50,7 @@ func NewSweep(
 		float64(minTime),
 		float64(maxTime),
 		float64(yLog2),
-		saturated / float64(colorSteps)}).drawGrid(xGrid)
+		saturated / colorSteps}).drawGrid(xGrid)
 }
 
 // Record accepts an EventData pointer and plots it onto the visualization.
