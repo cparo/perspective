@@ -42,7 +42,7 @@ var (
 	w              int     // Visualization width, in pixels.
 	h              int     // Visualization height, in pixels.
 	bg             int     // Graph background color.
-	colors         int     // The number of color steps before saturation.
+	colors         float64 // The number of color steps before saturation.
 	action         string  // Indication of action to be taken.
 	iPath          string  // Filesystem path for input.
 	oPath          string  // Filesystem path for output.
@@ -179,7 +179,7 @@ func main() {
 		32,
 		"Background gray level.")
 
-	flag.IntVar(
+	flag.Float64Var(
 		&colors,
 		"color-steps",
 		1,
