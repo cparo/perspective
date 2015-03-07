@@ -83,9 +83,10 @@ func (v *polar_scatter) Record(e *EventData) {
 	r := v.yLog2 * math.Log2(float64(e.Run))
 
 	// Translate to Cartesian coordinates (with the quirk of the upside-down
-	// y-axis common in computer images).
-	x := int(r * math.Cos(ϕ)) + v.w / 2
-	y := v.h / 2 - int(r * math.Sin(ϕ))
+	// y-axis common in computer images). A bit of random "noise" is added to
+	// avoid distracting Moire patterns as an artefact of the translation.
+	x := int(r * math.Cos(ϕ) + 4*rng.Float64() - 2) + v.w / 2
+	y := v.h / 2 - int(r * math.Sin(ϕ) + 4*rng.Float64() - 2)
 
 	// Since recorded events may collide in space with other recorded points in
 	// this visualization, we use a color progression to indicate the density

@@ -97,8 +97,8 @@ func (v *polarStarfield) Record(e *EventData) {
 	// Translate to Cartesian coordinates (with the quirk of the upside-down
 	// y-axis common in computer images). A bit of random "noise" is added to
 	// avoid distracting Moire patterns as an artefact of the translation.
-	xP := int(r*math.Cos(ϕ) + 3*rng.Float64()) + w/2
-	yP := h/2 - int(r*math.Sin(ϕ) + 3*rng.Float64())
+	xP := int(r*math.Cos(ϕ) + 4*rng.Float64() - 2) + w/2
+	yP := h/2 - int(r*math.Sin(ϕ) + 4*rng.Float64() - 2)
 
 	// Select appropriate canvas layer based on the event's status code.
 	var frame []float64
