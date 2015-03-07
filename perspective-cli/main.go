@@ -37,6 +37,8 @@ var (
 	statusFilter   int     // Least significant bits: {done, failed, running}.
 	tA             int     // Lower limit of time range to be visualized.
 	tΩ             int     // Upper limit of time range to be visualized.
+	p0             int     // Point in time representing the start of a period.
+	pτ             int     // The interval length for periodic visualizations.
 	xGrid          int     // Number of horizontal grid divisions.
 	yLog2          float64 // Number of pixels over which elapsed times double.
 	w              int     // Visualization width, in pixels.
@@ -79,6 +81,12 @@ func init() {
 
 	handlers["vis-histogram"] = func() {
 		visualize(perspective.NewHistogram(w, h, bg, yLog2))
+	}
+
+	handlers["vis-polar-scatter"] = func() {
+		visualize(
+			perspective.NewPolarScatter(
+				w, h, bg, tA, tΩ, p0, pτ,yLog2, colors))
 	}
 
 	handlers["vis-ribbon"] = func() {
@@ -148,6 +156,18 @@ func main() {
 		"max-time",
 		int(time.Now().Unix()),
 		"Most recent time to show, expressed as seconds in Unix epoch time.")
+
+	flag.IntVar(
+		&p0,
+		"period-start",
+		int(time.Now().Unix()),
+		"A point in time representing the start of a period.")
+
+	flag.IntVar(
+		&pτ,
+		"period-length",
+		-1,
+		"The interval length for periodic visualizations.")
 
 	flag.IntVar(
 		&xGrid,

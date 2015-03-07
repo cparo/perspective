@@ -45,6 +45,8 @@ type options struct {
 	regionFilter int     // Region to filter for, if non-negative.
 	tA           int     // Lower limit of time range to be visualized.
 	tΩ           int     // Upper limit of time range to be visualized.
+	p0           int     // A point in time representing the start of a period.
+	pτ           int     // The interval length for periodic visualizations.
 	xGrid        int     // Number of horizontal grid divisions.
 	yLog2        float64 // Number of pixels over which elapsed times double.
 	w            int     // Visualization width, in pixels.
@@ -62,6 +64,14 @@ func init() {
 
 	handlers["vis-histogram"] = func(out http.ResponseWriter, r *options) {
 		visualize(perspective.NewHistogram(r.w, r.h, r.bg, r.yLog2), out, r)
+	}
+
+	handlers["vis-polar-scatter"] = func(out http.ResponseWriter, r *options) {
+		visualize(
+			perspective.NewPolarScatter(
+				r.w, r.h, r.bg, r.tA, r.tΩ, r.p0, r.pτ, r.yLog2, r.colors),
+			out,
+			r)
 	}
 
 	handlers["vis-ribbon"] = func(out http.ResponseWriter, r *options) {
@@ -266,13 +276,16 @@ func responder(response http.ResponseWriter, request *http.Request) {
 
 	// Parse options, using the same defaults as are used by the CLI interface
 	// where options are missing or malformed:
+	now := int(time.Now().Unix())
 	values := request.URL.Query()
 	options := &options{
 		intOpt(values, "status-filter", -1),
 		intOpt(values, "event-type", -1),
 		intOpt(values, "region", -1),
 		timeOpt(values, "min-time", 0),
-		timeOpt(values, "max-time", int(time.Now().Unix())),
+		timeOpt(values, "max-time", now),
+		timeOpt(values, "period-start", now),
+		timeOpt(values, "period-length", -1),
 		intOpt(values, "x-grid", 0),
 		f64Opt(values, "run-time-scale", 16),
 		intOpt(values, "width", 256),
