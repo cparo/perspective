@@ -74,6 +74,14 @@ func init() {
 			r)
 	}
 
+	handlers["vis-polar-starfield"] = func(out http.ResponseWriter, r *options) {
+		visualize(
+			perspective.NewPolarStarfield(
+				r.w, r.h, r.bg, r.tA, r.tΩ, r.p0, r.pτ, r.yLog2, r.colors),
+			out,
+			r)
+	}
+
 	handlers["vis-ribbon"] = func(out http.ResponseWriter, r *options) {
 		visualize(perspective.NewRibbon(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
 	}

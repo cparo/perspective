@@ -89,6 +89,12 @@ func init() {
 				w, h, bg, tA, tΩ, p0, pτ,yLog2, colors))
 	}
 
+	handlers["vis-polar-starfield"] = func() {
+		visualize(
+			perspective.NewPolarStarfield(
+				w, h, bg, tA, tΩ, p0, pτ,yLog2, colors))
+	}
+
 	handlers["vis-ribbon"] = func() {
 		visualize(perspective.NewRibbon(w, h, bg, tA, tΩ))
 	}

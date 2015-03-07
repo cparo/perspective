@@ -24,7 +24,7 @@ import (
 
 // Note that floating-point pre-rendering canvases have a two-pixel bleed on all
 // edges to allow for simple use of the bloom effect's convolution kernel.
-type starfield struct {
+type polarStarfield struct {
 	w     int       // Width of the visualization
 	h     int       // Height of the visualization
 	s     []float64 // Channel for successful events
@@ -32,24 +32,42 @@ type starfield struct {
 	a     []float64 // Channel for active events
 	tA    float64   // Lower limit of time range to be visualized
 	tτ    float64   // Length of time range to be visualized
+	p0    float64   // Temporal period phase offset value
+	pτ    float64   // The periodic interval length
 	yLog2 float64   // Number of pixels over which elapsed times double
 	cΔ    float64   // Increment for color channel value increases
-	xGrid int       // Number of vertical grid divisions
 	bg    int       // Background gray level
+	ϕΔ    float64   // Angular value, in radians, of a step in time
 }
 
-// NewStarfield returns a floating-point scatter-visualization generator.
-func NewStarfield(
+// NewPolarStarfield returns a polar floating-point scatter-visualization
+// generator.
+func NewPolarStarfield(
 	width int,
 	height int,
 	bg int,
 	minTime int,
 	maxTime int,
+	phasePoint int,
+	period int,
 	yLog2 float64,
-	colorSteps float64,
-	xGrid int) Visualizer {
+	colorSteps float64) Visualizer {
 
-	return (&starfield{
+	// Ensure we have a positive, non-zero period length. If we don't (for
+	// instance, if none was specified by the end user and we were given a
+	// negative value to signify this), then take the length of time covered by
+	// this visualization as the overall period length.
+	if period <= 0 {
+		period = maxTime - minTime
+	}
+
+	// Note the calculation for the temporal phase offset value, which is used
+	// to normalize the phase-offset time to the the corresponding same-angle
+	// point in time just before the logical start of a period (it will always
+	// be a value >= 0) for the sake of simplifying positional calculations
+	// when plotting individual event data points.
+
+	return (&polarStarfield{
 		width,
 		height,
 		make([]float64, (width+4)*(height+4)),
@@ -57,19 +75,30 @@ func NewStarfield(
 		make([]float64, (width+4)*(height+4)),
 		float64(minTime),
 		float64(maxTime - minTime),
+		float64(phasePoint%period - period),
+		float64(period),
 		float64(yLog2),
 		saturated / colorSteps,
-		xGrid,
-		bg})
+		bg,
+		2 * math.Pi / float64(period)})
 }
 
 // Record accepts an EventData pointer and plots it onto the visualization.
-func (v *starfield) Record(e *EventData) {
+func (v *polarStarfield) Record(e *EventData) {
 
-	xP := int(float64(v.w) * (float64(e.Start) - v.tA) / v.tτ)
-	yP := v.h - int(v.yLog2*math.Log2(float64(e.Run)))
+	// Angular position (for event start time).
+	ϕ := math.Pi / 2 - v.ϕΔ * math.Mod(float64(e.Start) - v.p0, v.pτ)
+
+	// Distance from center of visualization (for event run time).
+	r := v.yLog2 * math.Log2(float64(e.Run))
 
 	w, h := v.w, v.h
+
+	// Translate to Cartesian coordinates (with the quirk of the upside-down
+	// y-axis common in computer images). A bit of random "noise" is added to
+	// avoid distracting Moire patterns as an artefact of the translation.
+	xP := int(r*math.Cos(ϕ) + 3*rng.Float64()) + w/2
+	yP := h/2 - int(r*math.Sin(ϕ) + 3*rng.Float64())
 
 	// Select appropriate canvas layer based on the event's status code.
 	var frame []float64
@@ -100,23 +129,17 @@ func (v *starfield) Record(e *EventData) {
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (v *starfield) Render() image.Image {
+func (v *polarStarfield) Render() image.Image {
 
 	// Create a normal image canvas to render to.
 	w, h, cΔ := v.w, v.h, v.cΔ
 	vis := initializeVisualization(w, h, v.bg)
 
-	// Draw vertical grid lines, if vertical divisions were specified.
-	if v.xGrid > 0 {
-		for i := 1; i < v.xGrid; i++ {
-			drawXGridLine(vis, i*w/v.xGrid)
-		}
-	}
+	// Draw crosshairs.
+	drawXGridLine(vis, v.w/2)
+	drawYGridLine(vis, v.h/2)
 
-	// Draw horizontal grid lines on each doubling of the run time in seconds.
-	for y := float64(h); y > 0; y -= v.yLog2 {
-		drawYGridLine(vis, int(y))
-	}
+	// TODO: Draw circles on ylog2 intervals
 
 	// Render point data to final image.
 	s, f, a := v.s, v.f, v.a
