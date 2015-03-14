@@ -66,8 +66,15 @@ func NewStarfield(
 // Record accepts an EventData pointer and plots it onto the visualization.
 func (v *starfield) Record(e *EventData) {
 
+	// Apply a bit of random "noise" (on a Gaussian distribution, with a
+	// standard deviation of 0.5), to the time scale to avoid Moire patterns
+	// and quantization artifacts which could distract from real patterns or
+	// create a false sense of consistency in the run times of short-lived
+	// events.
+	t := float64(e.Run) + rng.NormFloat64() / 2
+
 	xP := int(float64(v.w) * (float64(e.Start) - v.tA) / v.tτ)
-	yP := v.h - int(v.yLog2*math.Log2(float64(e.Run)))
+	yP := v.h - int(v.yLog2*math.Log2(t))
 
 	w, h := v.w, v.h
 

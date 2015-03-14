@@ -46,10 +46,17 @@ func NewHistogram(width int, height int, bg int, yLog2 float64) Visualizer {
 // Record accepts an EventData pointer and plots it onto the visualization.
 func (v *histogram) Record(e *EventData) {
 
+	// Apply a bit of random "noise" (on a Gaussian distribution, with a
+	// standard deviation of 0.5), to the time scale to avoid Moire patterns
+	// and quantization artifacts which could distract from real patterns or
+	// create a false sense of consistency in the run times of short-lived
+	// events.
+	t := float64(e.Run) + rng.NormFloat64() / 2
+
 	// Run time is hacked to a floor of 1 because a log of zero doesn't
 	// make a lot of sense, and there are some fun cases of events with
 	// negative recorded run times because of clock skew.
-	x := int(v.yLog2 * math.Log2(math.Max(1, float64(e.Run))))
+	x := int(v.yLog2 * math.Log2(math.Max(1, t)))
 
 	// Discard data which lies beyond the specified bounds for the
 	// rendered visualization, and only record completed events. Incomplete

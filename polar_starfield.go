@@ -89,16 +89,22 @@ func (v *polarStarfield) Record(e *EventData) {
 	// Angular position (for event start time).
 	ϕ := math.Pi / 2 - v.ϕΔ * math.Mod(float64(e.Start) - v.p0, v.pτ)
 
+	// Apply a bit of random "noise" (on a Gaussian distribution, with a
+	// standard deviation of 0.5), to the time scale to avoid Moire patterns
+	// and quantization artifacts which could distract from real patterns or
+	// create a false sense of consistency in the run times of short-lived
+	// events.
+	t := float64(e.Run) + rng.NormFloat64() / 2
+
 	// Distance from center of visualization (for event run time).
-	r := v.yLog2 * math.Log2(float64(e.Run))
+	r := v.yLog2 * math.Log2(t)
 
 	w, h := v.w, v.h
 
 	// Translate to Cartesian coordinates (with the quirk of the upside-down
-	// y-axis common in computer images). A bit of random "noise" is added to
-	// avoid distracting Moire patterns as an artefact of the translation.
-	xP := int(r*math.Cos(ϕ) + 4*rng.Float64() - 2) + w/2
-	yP := h/2 - int(r*math.Sin(ϕ) + 4*rng.Float64() - 2)
+	// y-axis common in computer images).
+	xP := int(r*math.Cos(ϕ)) + w/2
+	yP := h/2 - int(r*math.Sin(ϕ))
 
 	// Select appropriate canvas layer based on the event's status code.
 	var frame []float64
