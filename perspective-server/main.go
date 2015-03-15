@@ -58,10 +58,6 @@ type options struct {
 
 func init() {
 
-	handlers["vis-error-stack"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewErrorStack(r.w, r.h, r.bg), out, r)
-	}
-
 	handlers["vis-histogram"] = func(out http.ResponseWriter, r *options) {
 		visualize(perspective.NewHistogram(r.w, r.h, r.bg, r.yLog2), out, r)
 	}
@@ -86,11 +82,6 @@ func init() {
 		visualize(perspective.NewRibbon(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
 	}
 
-	handlers["vis-rolling-stack"] = func(out http.ResponseWriter, r *options) {
-		visualize(
-			perspective.NewRollingStack(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
-	}
-
 	handlers["vis-scatter"] = func(out http.ResponseWriter, r *options) {
 		visualize(
 			perspective.NewScatter(
@@ -105,10 +96,6 @@ func init() {
 				r.w, r.h, r.bg, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
 			out,
 			r)
-	}
-
-	handlers["vis-status-stack"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewStatusStack(r.w, r.h, r.bg), out, r)
 	}
 
 	handlers["vis-sweep"] = func(out http.ResponseWriter, r *options) {

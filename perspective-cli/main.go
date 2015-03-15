@@ -75,10 +75,6 @@ func init() {
 			errorClassConf)
 	}
 
-	handlers["vis-error-stack"] = func() {
-		visualize(perspective.NewErrorStack(w, h, bg))
-	}
-
 	handlers["vis-histogram"] = func() {
 		visualize(perspective.NewHistogram(w, h, bg, yLog2))
 	}
@@ -99,17 +95,9 @@ func init() {
 		visualize(perspective.NewRibbon(w, h, bg, tA, tΩ))
 	}
 
-	handlers["vis-rolling-stack"] = func() {
-		visualize(perspective.NewRollingStack(w, h, bg, tA, tΩ))
-	}
-
 	handlers["vis-scatter"] = func() {
 		visualize(
 			perspective.NewScatter(w, h, bg, tA, tΩ, yLog2, colors, xGrid))
-	}
-
-	handlers["vis-status-stack"] = func() {
-		visualize(perspective.NewStatusStack(w, h, bg))
 	}
 
 	handlers["vis-sweep"] = func() {
