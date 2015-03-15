@@ -89,14 +89,6 @@ func init() {
 			out,
 			r)
 	}
-
-	handlers["vis-wave"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewWave(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
-	}
-
-	handlers["vis-wave-sorted"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewSortedWave(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
-	}
 }
 
 func dumpEventData(out http.ResponseWriter, r *options) {

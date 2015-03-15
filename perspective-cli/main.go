@@ -92,14 +92,6 @@ func init() {
 	handlers["vis-sweep"] = func() {
 		visualize(perspective.NewSweep(w, h, bg, tA, tΩ, yLog2, colors, xGrid))
 	}
-
-	handlers["vis-wave"] = func() {
-		visualize(perspective.NewWave(w, h, bg, tA, tΩ))
-	}
-
-	handlers["vis-wave-sorted"] = func() {
-		visualize(perspective.NewSortedWave(w, h, bg, tA, tΩ))
-	}
 }
 
 func main() {
