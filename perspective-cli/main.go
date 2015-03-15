@@ -95,10 +95,6 @@ func init() {
 			perspective.NewScatter(
 				w, h, bg, tA, tΩ, yLog2, colors, xGrid))
 	}
-
-	handlers["vis-sweep"] = func() {
-		visualize(perspective.NewSweep(w, h, bg, tA, tΩ, yLog2, colors, xGrid))
-	}
 }
 
 func main() {

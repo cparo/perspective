@@ -81,14 +81,6 @@ func init() {
 			out,
 			r)
 	}
-
-	handlers["vis-sweep"] = func(out http.ResponseWriter, r *options) {
-		visualize(
-			perspective.NewSweep(
-				r.w, r.h, r.bg, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
-			out,
-			r)
-	}
 }
 
 func dumpEventData(out http.ResponseWriter, r *options) {
