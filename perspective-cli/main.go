@@ -79,12 +79,6 @@ func init() {
 		visualize(perspective.NewHistogram(w, h, bg, yLog2))
 	}
 
-	handlers["vis-polar-scatter"] = func() {
-		visualize(
-			perspective.NewPolarScatter(
-				w, h, bg, tA, tΩ, p0, pτ,yLog2, colors))
-	}
-
 	handlers["vis-polar-starfield"] = func() {
 		visualize(
 			perspective.NewPolarStarfield(
@@ -93,11 +87,6 @@ func init() {
 
 	handlers["vis-ribbon"] = func() {
 		visualize(perspective.NewRibbon(w, h, bg, tA, tΩ))
-	}
-
-	handlers["vis-scatter"] = func() {
-		visualize(
-			perspective.NewScatter(w, h, bg, tA, tΩ, yLog2, colors, xGrid))
 	}
 
 	handlers["vis-sweep"] = func() {
