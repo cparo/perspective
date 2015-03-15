@@ -64,17 +64,6 @@ func init() {
 			errorClassConf)
 	}
 
-	handlers["print-event-log"] = func() {
-		feeds.PrintEventLog(
-			iPath,
-			int32(tA),
-			int32(tΩ),
-			typeFilter,
-			regionFilter,
-			statusFilter,
-			errorClassConf)
-	}
-
 	handlers["vis-histogram"] = func() {
 		visualize(perspective.NewHistogram(w, h, bg, yLog2))
 	}
