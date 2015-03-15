@@ -24,7 +24,7 @@ import (
 
 // Note that floating-point pre-rendering canvases have a two-pixel bleed on all
 // edges to allow for simple use of the bloom effect's convolution kernel.
-type starfield struct {
+type scatter struct {
 	w     int       // Width of the visualization
 	h     int       // Height of the visualization
 	s     []float64 // Channel for successful events
@@ -38,8 +38,8 @@ type starfield struct {
 	bg    int       // Background gray level
 }
 
-// NewStarfield returns a floating-point scatter-visualization generator.
-func NewStarfield(
+// NewScatter returns a floating-point scatter-visualization generator.
+func NewScatter(
 	width int,
 	height int,
 	bg int,
@@ -49,7 +49,7 @@ func NewStarfield(
 	colorSteps float64,
 	xGrid int) Visualizer {
 
-	return (&starfield{
+	return (&scatter{
 		width,
 		height,
 		make([]float64, (width+4)*(height+4)),
@@ -64,7 +64,7 @@ func NewStarfield(
 }
 
 // Record accepts an EventData pointer and plots it onto the visualization.
-func (v *starfield) Record(e *EventData) {
+func (v *scatter) Record(e *EventData) {
 
 	// Apply a bit of random "noise" (on a Gaussian distribution, with a
 	// standard deviation of 0.5), to the time scale to avoid Moire patterns
@@ -107,7 +107,7 @@ func (v *starfield) Record(e *EventData) {
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (v *starfield) Render() image.Image {
+func (v *scatter) Render() image.Image {
 
 	// Create a normal image canvas to render to.
 	w, h, cΔ := v.w, v.h, v.cΔ

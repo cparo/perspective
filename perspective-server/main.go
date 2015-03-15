@@ -62,9 +62,9 @@ func init() {
 		visualize(perspective.NewHistogram(r.w, r.h, r.bg, r.yLog2), out, r)
 	}
 
-	handlers["vis-polar-starfield"] = func(out http.ResponseWriter, r *options) {
+	handlers["vis-polar-scatter"] = func(out http.ResponseWriter, r *options) {
 		visualize(
-			perspective.NewPolarStarfield(
+			perspective.NewPolarScatter(
 				r.w, r.h, r.bg, r.tA, r.tΩ, r.p0, r.pτ, r.yLog2, r.colors),
 			out,
 			r)
@@ -74,9 +74,9 @@ func init() {
 		visualize(perspective.NewRibbon(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
 	}
 
-	handlers["vis-starfield"] = func(out http.ResponseWriter, r *options) {
+	handlers["vis-scatter"] = func(out http.ResponseWriter, r *options) {
 		visualize(
-			perspective.NewStarfield(
+			perspective.NewScatter(
 				r.w, r.h, r.bg, r.tA, r.tΩ, r.yLog2, r.colors, r.xGrid),
 			out,
 			r)

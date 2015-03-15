@@ -24,7 +24,7 @@ import (
 
 // Note that floating-point pre-rendering canvases have a two-pixel bleed on all
 // edges to allow for simple use of the bloom effect's convolution kernel.
-type polarStarfield struct {
+type polarScatter struct {
 	w     int       // Width of the visualization
 	h     int       // Height of the visualization
 	s     []float64 // Channel for successful events
@@ -40,9 +40,9 @@ type polarStarfield struct {
 	ϕΔ    float64   // Angular value, in radians, of a step in time
 }
 
-// NewPolarStarfield returns a polar floating-point scatter-visualization
+// NewPolarScatter returns a polar floating-point scatter-visualization
 // generator.
-func NewPolarStarfield(
+func NewPolarScatter(
 	width int,
 	height int,
 	bg int,
@@ -67,7 +67,7 @@ func NewPolarStarfield(
 	// be a value >= 0) for the sake of simplifying positional calculations
 	// when plotting individual event data points.
 
-	return (&polarStarfield{
+	return (&polarScatter{
 		width,
 		height,
 		make([]float64, (width+4)*(height+4)),
@@ -84,7 +84,7 @@ func NewPolarStarfield(
 }
 
 // Record accepts an EventData pointer and plots it onto the visualization.
-func (v *polarStarfield) Record(e *EventData) {
+func (v *polarScatter) Record(e *EventData) {
 
 	// Angular position (for event start time).
 	ϕ := math.Pi / 2 - v.ϕΔ * math.Mod(float64(e.Start) - v.p0, v.pτ)
@@ -135,7 +135,7 @@ func (v *polarStarfield) Record(e *EventData) {
 
 // Render returns the visualization constructed from all previously-recorded
 // data points.
-func (v *polarStarfield) Render() image.Image {
+func (v *polarScatter) Render() image.Image {
 
 	// Create a normal image canvas to render to.
 	w, h, cΔ := v.w, v.h, v.cΔ
