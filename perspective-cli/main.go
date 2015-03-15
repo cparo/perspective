@@ -74,11 +74,6 @@ func init() {
 				w, h, bg, tA, tΩ, p0, pτ, yLog2, colors))
 	}
 
-	handlers["vis-ribbon"] = func() {
-		visualize(perspective.NewRibbon(w, h, bg, tA, tΩ))
-	}
-
-
 	handlers["vis-scatter"] = func() {
 		visualize(
 			perspective.NewScatter(

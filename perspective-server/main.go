@@ -70,10 +70,6 @@ func init() {
 			r)
 	}
 
-	handlers["vis-ribbon"] = func(out http.ResponseWriter, r *options) {
-		visualize(perspective.NewRibbon(r.w, r.h, r.bg, r.tA, r.tΩ), out, r)
-	}
-
 	handlers["vis-scatter"] = func(out http.ResponseWriter, r *options) {
 		visualize(
 			perspective.NewScatter(
