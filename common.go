@@ -21,8 +21,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"math/rand"
-	"time"
 	"unsafe"
 )
 
@@ -46,8 +44,6 @@ var pointConvolutionKernel = [25]float64{
 	0.000455, 0.053093, 0.230420, 0.053093, 0.000455,
 	0.000004, 0.000455, 0.001978, 0.000455, 0.000004,
 }
-
-var rng = rand.New(rand.NewSource(time.Now().Unix()))
 
 // Struct to represent data to submit to the visualization generators, and to be
 // used for the binary log format.

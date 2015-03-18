@@ -20,6 +20,7 @@ package perspective
 import (
 	"image"
 	"math"
+	"math/rand"
 )
 
 // Note that floating-point pre-rendering canvases have a two-pixel bleed on all
@@ -93,8 +94,8 @@ func (v *polarScatter) Record(e *EventData) {
 	// standard deviation of 0.5), to the time scale to avoid Moire patterns
 	// and quantization artifacts which could distract from real patterns or
 	// create a false sense of consistency in the run times of short-lived
-	// events.
-	t := float64(e.Run) + rng.NormFloat64() / 2
+	// events./
+	t := float64(e.Run) + rand.NormFloat64() / 2
 
 	// Distance from center of visualization (for event run time).
 	r := v.yLog2 * math.Log2(t)

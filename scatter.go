@@ -20,6 +20,7 @@ package perspective
 import (
 	"image"
 	"math"
+	"math/rand"
 )
 
 // Note that floating-point pre-rendering canvases have a two-pixel bleed on all
@@ -71,7 +72,7 @@ func (v *scatter) Record(e *EventData) {
 	// and quantization artifacts which could distract from real patterns or
 	// create a false sense of consistency in the run times of short-lived
 	// events.
-	t := float64(e.Run) + rng.NormFloat64() / 2
+	t := float64(e.Run) + rand.NormFloat64() / 2
 
 	xP := int(float64(v.w) * (float64(e.Start) - v.tA) / v.tτ)
 	yP := v.h - int(v.yLog2*math.Log2(t))

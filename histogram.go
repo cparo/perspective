@@ -21,6 +21,7 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"math/rand"
 )
 
 type histogram struct {
@@ -51,7 +52,7 @@ func (v *histogram) Record(e *EventData) {
 	// and quantization artifacts which could distract from real patterns or
 	// create a false sense of consistency in the run times of short-lived
 	// events.
-	t := float64(e.Run) + rng.NormFloat64() / 2
+	t := float64(e.Run) + rand.NormFloat64() / 2
 
 	// Run time is hacked to a floor of 1 because a log of zero doesn't
 	// make a lot of sense, and there are some fun cases of events with
