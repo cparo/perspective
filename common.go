@@ -123,3 +123,31 @@ func initializeVisualization(width int, height int, bg int) *image.RGBA {
 	draw.Draw(vis, vis.Bounds(), &image.Uniform{background}, image.ZP, draw.Src)
 	return vis
 }
+
+// Get the largest of three integers (without a lot of casting)
+func intMaxOfThree(a int, b int, c int) int {
+	if a > b {
+		if a > c {
+			return a
+		}
+		return c
+	}
+	if b > c {
+		return b
+	}
+	return c
+}
+
+// Get the smallest of three integers (without a lot of casting)
+func intMinOfThree(a int, b int, c int) int {
+	if a < b {
+		if a < c {
+			return a
+		}
+		return c
+	}
+	if b < c {
+		return b
+	}
+	return c
+}

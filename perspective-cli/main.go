@@ -64,6 +64,11 @@ func init() {
 			errorClassConf)
 	}
 
+	handlers["vis-count-lines"] = func() {
+		visualize(
+			perspective.NewCountLines(w, h, bg, tA, tΩ, xGrid))
+	}
+
 	handlers["vis-histogram"] = func() {
 		visualize(perspective.NewHistogram(w, h, bg, yLog2))
 	}

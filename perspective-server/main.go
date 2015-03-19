@@ -58,6 +58,13 @@ type options struct {
 
 func init() {
 
+	handlers["vis-count-lines"] = func(out http.ResponseWriter, r *options) {
+		visualize(
+			perspective.NewCountLines(r.w, r.h, r.bg, r.tA, r.tΩ, r.xGrid),
+			out,
+			r)
+	}
+
 	handlers["vis-histogram"] = func(out http.ResponseWriter, r *options) {
 		visualize(perspective.NewHistogram(r.w, r.h, r.bg, r.yLog2), out, r)
 	}
