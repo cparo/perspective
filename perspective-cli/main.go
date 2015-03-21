@@ -45,6 +45,7 @@ var (
 	h              int     // Visualization height, in pixels.
 	bg             int     // Graph background color.
 	colors         float64 // The number of color steps before saturation.
+	resonance      float64 // Resonance value for line-smoothing.
 	action         string  // Indication of action to be taken.
 	iPath          string  // Filesystem path for input.
 	oPath          string  // Filesystem path for output.
@@ -66,7 +67,7 @@ func init() {
 
 	handlers["vis-count-lines"] = func() {
 		visualize(
-			perspective.NewCountLines(w, h, bg, tA, tΩ, xGrid))
+			perspective.NewCountLines(w, h, bg, tA, tΩ, resonance, xGrid))
 	}
 
 	handlers["vis-histogram"] = func() {
@@ -171,6 +172,12 @@ func main() {
 		"color-steps",
 		1,
 		"Number of color steps to use in rendering before clipping.")
+
+	flag.Float64Var(
+		&resonance,
+		"smoothing-resonance",
+		0.85,
+		"Resonance value for line-smoothin.")
 
 	flag.Parse()
 

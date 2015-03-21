@@ -53,6 +53,7 @@ type options struct {
 	h            int     // Visualization height, in pixels.
 	bg           int     // Graph background color.
 	colors       float64 // The number of color steps before saturation.
+	resonance    float64 // Resonance value for line-smoothing.
 	feed         string  // Input feed name.
 }
 
@@ -60,7 +61,8 @@ func init() {
 
 	handlers["vis-count-lines"] = func(out http.ResponseWriter, r *options) {
 		visualize(
-			perspective.NewCountLines(r.w, r.h, r.bg, r.tA, r.tΩ, r.xGrid),
+			perspective.NewCountLines(
+				r.w, r.h, r.bg, r.tA, r.tΩ, r.resonance, r.xGrid),
 			out,
 			r)
 	}
@@ -258,6 +260,7 @@ func responder(response http.ResponseWriter, request *http.Request) {
 		intOpt(values, "height", 256),
 		intOpt(values, "bg", 33),
 		f64Opt(values, "color-steps", 1),
+		f64Opt(values, "smoothing-resonance", 0.85),
 		strOpt(values, "feed", "")}
 
 	action := request.URL.Path[1:]

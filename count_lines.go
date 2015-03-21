@@ -42,7 +42,17 @@ func NewCountLines(
 	bg int,
 	minTime int,
 	maxTime int,
+	resonance float64,
 	xGrid int) Visualizer {
+
+	// Select a window which is appropriate for the selected resonance
+	window := 0;
+	n := 1.0;
+	for  window < width && n > 0.02 {
+		n = n * resonance
+		window++
+	}
+
 	return &countLines{
 		width,
 		height,
@@ -50,8 +60,8 @@ func NewCountLines(
 		float64(maxTime - minTime),
 		make([]float64, width),
 		make([]float64, width),
-		0.85,
-		width / 42,
+		resonance,
+		window, //width / 42,
 		xGrid,
 		bg}
 }
