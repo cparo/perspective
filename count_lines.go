@@ -29,7 +29,6 @@ type countLines struct {
 	tτ        float64   // Length of time range to be visualized
 	s         []float64 // Counts of successful events by x-axis position
 	f         []float64 // Counts of failed events by x-axis position
-	a         []float64 // Counts of active events by x-axis position
 	resonance float64   // Inverse of geometric decay for moving-window
 	window    int       // Moving-window width
 	xGrid     int       // Number of vertical grid divisions
@@ -51,7 +50,6 @@ func NewCountLines(
 		float64(maxTime - minTime),
 		make([]float64, width),
 		make([]float64, width),
-		make([]float64, width),
 		0.85,
 		width / 42,
 		xGrid,
@@ -69,13 +67,16 @@ func (v *countLines) Record(e *EventData) {
 	// on each edge for smoothing purposes.
 	x := int(float64(v.w) * (float64(e.Start) - v.tA) / v.tτ)
 
+	// Ignore active events
+	if e.Status < 0 {
+		return
+	}
+
 	var frame []float64
 	if e.Status == 0 {
 		frame = v.s
-	} else if e.Status > 0 {
-		frame = v.f
 	} else {
-		frame = v.a
+		frame = v.f
 	}
 
 	// TODO: Adaptive windowing to intelligently handle the edge of the graph,
@@ -100,7 +101,7 @@ func (v *countLines) Record(e *EventData) {
 func (v *countLines) Render() image.Image {
 
 	// Stroke width (for visibility and calligraphic effect)
-	stroke := v.h / 72
+	stroke := v.h / 32
 
 	// Initialize our image canvas and grid.
 	vis := initializeVisualization(v.w, v.h, v.bg)
@@ -111,9 +112,8 @@ func (v *countLines) Render() image.Image {
 	for x := 0; x < v.w; x++ {
 		maxCount = math.Max(maxCount, v.s[x])
 		maxCount = math.Max(maxCount, v.f[x])
-		maxCount = math.Max(maxCount, v.a[x])
 	}
-	scale := float64(v.h-stroke) / (maxCount)
+	scale := float64(v.h) / (maxCount)
 
 	// Draw the masts, with successes stacked atop failures.
 	var yMin, yMax int
@@ -125,9 +125,9 @@ func (v *countLines) Render() image.Image {
 		sP := int(math.Ceil(v.s[x-1] * scale))
 		sC := int(math.Ceil(v.s[x+0] * scale))
 		sN := int(math.Ceil(v.s[x+1] * scale))
-		yMin = intMinOfThree(sC-stroke, sP+stroke, sN+stroke)
-		yMax = sC + stroke
-		for y := yMin; y <= yMax; y++ {
+		yMin = intMinOfThree(sC - stroke, sP, sN)
+		yMax = sC
+		for y := yMin; y < yMax; y++ {
 			cS := getRGBA(vis, x, v.h-y)
 			cS.R += 24
 			cS.G += 24
@@ -137,25 +137,13 @@ func (v *countLines) Render() image.Image {
 		fP := int(math.Ceil(v.f[x-1] * scale))
 		fC := int(math.Ceil(v.f[x+0] * scale))
 		fN := int(math.Ceil(v.f[x+1] * scale))
-		yMin = intMinOfThree(fC-stroke, fP+stroke, fN+stroke)
-		yMax = fC + stroke
-		for y := yMin; y <= yMax; y++ {
+		yMin = intMinOfThree(fC - stroke, fP, fN)
+		yMax = fC
+		for y := yMin; y < yMax; y++ {
 			cF := getRGBA(vis, x, v.h-y)
 			cF.R += 128
 			cF.G += 24
 			cF.B += 24
-		}
-
-		aP := int(math.Ceil(v.a[x-1] * scale))
-		aC := int(math.Ceil(v.a[x+0] * scale))
-		aN := int(math.Ceil(v.a[x+1] * scale))
-		yMin = intMinOfThree(aC-stroke, aP+stroke, aN+stroke)
-		yMax = aC + stroke
-		for y := yMin; y <= yMax; y++ {
-			cA := getRGBA(vis, x, v.h-y)
-			cA.R += 24
-			cA.G += 128
-			cA.B += 24
 		}
 	}
 
@@ -168,7 +156,7 @@ func (v *countLines) drawGrid(vis *image.RGBA) {
 	// smoothing window.
 	for y := 0; y < v.h; y++ {
 		for x := 0; x < v.window; x++ {
-			if (x+y)%8 < 3 {
+			if (x+y)%8 < 3 || (x-y)%8 == 0 {
 				cS := getRGBA(vis, x, y)
 				cS.R += 18
 				cS.G += 18
@@ -176,7 +164,7 @@ func (v *countLines) drawGrid(vis *image.RGBA) {
 			}
 		}
 		for x := v.w - v.window; x < v.w; x++ {
-			if (x+y)%8 < 3 {
+			if (x+y)%8 < 3 || (x-y)%8 == 0 {
 				cS := getRGBA(vis, x, y)
 				cS.R += 18
 				cS.G += 18
