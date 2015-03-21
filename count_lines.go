@@ -124,7 +124,7 @@ func (v *countLines) Render() image.Image {
 	}
 	scale := float64(v.h) / (maxCount)
 
-	// Draw the masts, with successes stacked atop failures.
+	// Draw the lines.
 	var yMin, yMax int
 	for x := 1; x < v.w-1; x++ {
 
