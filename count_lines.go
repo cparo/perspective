@@ -89,10 +89,9 @@ func (v *countLines) Record(e *EventData) {
 		frame = v.f
 	}
 
-	// TODO: Adaptive windowing to intelligently handle the edge of the graph,
-	//       and possibly also get rid of the margin concept. May need some form
-	//       of discrete-space integral of the remaining window as a
-	//       normalization factor.
+	// Line is smothed with a bi-directional variation on an exponential moving
+	// average (which is implemented as a windowed FIR here for efficiency
+	// purposes).
 	frame[x] = frame[x] + 1
 	leftWindow := int(math.Min(float64(window), float64(x)))
 	for i, n := 1, 1.0; i < leftWindow; i++ {
