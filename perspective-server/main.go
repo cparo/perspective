@@ -67,6 +67,14 @@ func init() {
 			r)
 	}
 
+	handlers["vis-run-time-line"] = func(out http.ResponseWriter, r *options) {
+		visualize(
+			perspective.NewRunTimeLine(
+				r.w, r.h, r.bg, r.tA, r.tΩ, r.yLog2, r.xGrid),
+			out,
+			r)
+	}
+
 	handlers["vis-histogram"] = func(out http.ResponseWriter, r *options) {
 		visualize(perspective.NewHistogram(r.w, r.h, r.bg, r.yLog2), out, r)
 	}

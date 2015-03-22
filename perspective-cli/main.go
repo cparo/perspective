@@ -80,6 +80,12 @@ func init() {
 				w, h, bg, tA, tΩ, p0, pτ, yLog2, colors))
 	}
 
+	handlers["vis-run-time-line"] = func() {
+		visualize(
+			perspective.NewRunTimeLine(
+				w, h, bg, tA, tΩ, yLog2, xGrid))
+	}
+
 	handlers["vis-scatter"] = func() {
 		visualize(
 			perspective.NewScatter(
