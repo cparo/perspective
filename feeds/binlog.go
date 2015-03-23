@@ -116,7 +116,7 @@ func GetSuccessRate(
 	}
 }
 
-func MapBinLogFile(path string) *[]perspective.EventData {
+func MapBinLogFile(path string, lookback int64) *[]perspective.EventData {
 
 	iFile, err := os.Open(path)
 	if err != nil {
@@ -132,12 +132,23 @@ func MapBinLogFile(path string) *[]perspective.EventData {
 		return nil
 	}
 
-	fileSize := int(iStat.Size())
+	fileSize := iStat.Size()
+
+	var start, length int64
+	if lookback > 0 && lookback < fileSize {
+		start = fileSize - lookback
+		// Round down start position to fall on an even page boundary so the
+		// mmap will succeed:
+		start = start - start % int64(syscall.Getpagesize())
+		length = fileSize - start
+	} else {
+		start, length = 0, fileSize
+	}
 
 	binLog, err := syscall.Mmap(
 		int(iFile.Fd()),
-		0,
-		fileSize,
+		start,
+		int(length),
 		syscall.PROT_READ,
 		syscall.MAP_PRIVATE)
 	if err != nil {

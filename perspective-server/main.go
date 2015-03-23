@@ -55,6 +55,7 @@ type options struct {
 	colors       float64 // The number of color steps before saturation.
 	resonance    float64 // Resonance value for line-smoothing.
 	feed         string  // Input feed name.
+	lookback     int     // Events to look back through in feed (0 for all).
 }
 
 func init() {
@@ -98,7 +99,7 @@ func init() {
 
 func dumpEventData(out http.ResponseWriter, r *options) {
 
-	eventData := loadFeed(r.feed, out)
+	eventData := loadFeed(r.feed, r.lookback, out)
 	if eventData == nil {
 		return
 	}
@@ -128,7 +129,7 @@ func f64Opt(values url.Values, name string, defaultValue float64) float64 {
 
 func getSuccessRate(out http.ResponseWriter, r *options) {
 
-	eventData := loadFeed(r.feed, out)
+	eventData := loadFeed(r.feed, r.lookback, out)
 	if eventData == nil {
 		return
 	}
@@ -269,7 +270,13 @@ func responder(response http.ResponseWriter, request *http.Request) {
 		intOpt(values, "bg", 33),
 		f64Opt(values, "color-steps", 1),
 		f64Opt(values, "smoothing-resonance", 0.85),
-		strOpt(values, "feed", "")}
+		strOpt(values, "feed", ""),
+		intOpt(values, "lookback", 0)}
+
+	// All lookback values should be positive.
+	if options.lookback < 0 {
+		options.lookback = -options.lookback
+	}
 
 	action := request.URL.Path[1:]
 
@@ -380,7 +387,7 @@ func timeOpt(values url.Values, name string, defaultValue int) int {
 
 func visualize(v perspective.Visualizer, out http.ResponseWriter, r *options) {
 
-	eventData := loadFeed(r.feed, out)
+	eventData := loadFeed(r.feed, r.lookback, out)
 	if eventData == nil {
 		return
 	}
@@ -396,7 +403,10 @@ func visualize(v perspective.Visualizer, out http.ResponseWriter, r *options) {
 	feeds.UnmapBinLogFile(eventData)
 }
 
-func loadFeed(feed string, out http.ResponseWriter) *[]perspective.EventData {
+func loadFeed(
+	feed string,
+	lookback int,
+	out http.ResponseWriter) *[]perspective.EventData {
 
 	path := dataPath + feed + ".dat"
 
@@ -411,7 +421,7 @@ func loadFeed(feed string, out http.ResponseWriter) *[]perspective.EventData {
 		return nil
 	}
 
-	eventData := feeds.MapBinLogFile(path)
+	eventData := feeds.MapBinLogFile(path, int64(lookback))
 	if eventData == nil {
 		http.Error(
 			out,

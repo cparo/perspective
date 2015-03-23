@@ -49,6 +49,7 @@ var (
 	action         string  // Indication of action to be taken.
 	iPath          string  // Filesystem path for input.
 	oPath          string  // Filesystem path for output.
+	lookback       int     // Events to look back through in feed (0 for all).
 )
 
 func init() {
@@ -185,6 +186,12 @@ func main() {
 		0.85,
 		"Resonance value for line-smoothin.")
 
+	flag.IntVar(
+		&lookback,
+		"lookback",
+		0,
+		"Number of events to scan, from end of log (or 0 for all events).")
+
 	flag.Parse()
 
 	if flag.NArg() != 3 {
@@ -210,7 +217,7 @@ func visualize(v perspective.Visualizer) {
 		log.Fatalln(err)
 	}
 
-	eventData := feeds.MapBinLogFile(iPath)
+	eventData := feeds.MapBinLogFile(iPath, int64(lookback))
 	if eventData == nil {
 		log.Fatalln("Failed to parse data feed.")
 	}
