@@ -135,8 +135,11 @@ func MapBinLogFile(path string, lookback int64) *[]perspective.EventData {
 	fileSize := iStat.Size()
 
 	var start, length int64
-	if lookback > 0 && lookback < fileSize {
-		start = fileSize - lookback
+	// Multiply event lookback by event struct size to get the number of actual
+	// bytes we should seek back in the input feed.
+	seekback := lookback * int64(unsafe.Sizeof(perspective.EventData{}))
+	if seekback > 0 && seekback < fileSize {
+		start = fileSize - seekback
 		// Round down start position to fall on an even page boundary so the
 		// mmap will succeed:
 		start = start - start % int64(syscall.Getpagesize())
