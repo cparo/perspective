@@ -121,7 +121,7 @@ func (v *polarScatter) Record(e *EventData) {
 	// and convolution kernel.
 	xMin, xMax := xP, xP + 5
 	yMin, yMax := yP, yP + 5
-	if xMin >= 0 && xMax < w+2 && yMin >= 0 && yMax < h+2 {
+	if xMin >= 2 && xMax < w+2 && yMin >= 2 && yMax < h+2 {
 		// Convolved plot point fits entirely within canvas (including its bleed
 		// zone), so we can safely draw it without falling off the edge.
 		iK := 0
