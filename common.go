@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	grid      = 45    // Gray level for grid lines
+	grid      = 50    // Gray level for grid lines
 	opaque    = 255   // Alpha component of an opaque color value
 	saturated = 255   // Saturated 8-bit color value
 	maxC16    = 65535 // Maximum color value returned from image.RGBA.At()
