@@ -21,6 +21,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"math"
 	"unsafe"
 )
 
@@ -78,6 +79,47 @@ func drawYGridLine(vis *image.RGBA, y int) {
 	w := vis.Bounds().Max.X
 	for x := 0; x < w; x++ {
 		vis.Set(x, y, c)
+	}
+}
+
+// Utility function to draw a polar grid circle at the specified radius from
+// the center point.
+func drawPolarGridCircle(vis *image.RGBA, r float64) {
+	x0 := vis.Bounds().Max.X / 2
+	y0 := vis.Bounds().Max.Y / 2
+	res := 2 * math.Pi * r
+	ϕΔ := 2 * math.Pi / res
+	for i := 0.0; i < res; i++ {
+		ϕ := i * ϕΔ
+		x := x0 + int(r*math.Cos(ϕ))
+		y := y0 + int(r*math.Sin(ϕ))
+		c := getRGBA(vis, x, y)
+		c.R, c.G, c.B = grid, grid, grid
+	}
+}
+
+// Utility function to draw tick marks at the specified radius from the center
+// point of a polar visualization.
+func drawPolarGridRadialTicks(vis *image.RGBA, r float64) {
+	w := vis.Bounds().Max.X
+	h := vis.Bounds().Max.Y
+	x0 := w / 2
+	y0 := h / 2
+
+	tickScale := int(math.Min(float64(w), float64(h)) / 72)
+
+	for _, y := range []int{y0 - int(r), y0 + int(r)} {
+		for x := x0 - tickScale; x <= x0 + tickScale; x++ {
+			c := getRGBA(vis, x, y)
+			c.R, c.G, c.B = grid, grid, grid
+		}
+	}
+
+	for _, x := range []int{x0 - int(r), x0 + int(r)} {
+		for y := y0 - tickScale; y <= y0 + tickScale; y++ {
+			c := getRGBA(vis, x, y)
+			c.R, c.G, c.B = grid, grid, grid
+		}
 	}
 }
 

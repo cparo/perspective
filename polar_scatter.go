@@ -146,7 +146,14 @@ func (v *polarScatter) Render() image.Image {
 	drawXGridLine(vis, v.w/2)
 	drawYGridLine(vis, v.h/2)
 
-	// TODO: Draw circles on ylog2 intervals
+	// Draw radial increments for time-period doublings.
+	for r := v.yLog2; int(r) < h || int(r) < w; r += v.yLog2 {
+		// This could be exchanged for drawPolarGridCircle(vis, r) if actual
+		// radial rings are desired for the grid rendering. Subjectively putting
+		// the two side-by-side, the crosshair ticks are less distracting and
+		// give a similar sense of where things fall on the time scale.
+		drawPolarGridRadialTicks(vis, r)
+	}
 
 	// Render point data to final image.
 	s, f, a := v.s, v.f, v.a
