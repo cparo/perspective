@@ -108,14 +108,14 @@ func drawPolarGridRadialTicks(vis *image.RGBA, r float64) {
 
 	tickScale := int(math.Min(float64(w), float64(h)) / 72)
 
-	for _, y := range []int{y0 - int(r), y0 + int(r)} {
+	for _, y := range []int{y0 - int(r), y0 + int(r) - 1} {
 		for x := x0 - tickScale; x <= x0 + tickScale; x++ {
 			c := getRGBA(vis, x, y)
 			c.R, c.G, c.B = grid, grid, grid
 		}
 	}
 
-	for _, x := range []int{x0 - int(r), x0 + int(r)} {
+	for _, x := range []int{x0 - int(r), x0 + int(r) - 1} {
 		for y := y0 - tickScale; y <= y0 + tickScale; y++ {
 			c := getRGBA(vis, x, y)
 			c.R, c.G, c.B = grid, grid, grid
