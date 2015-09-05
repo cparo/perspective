@@ -3,6 +3,8 @@ Perspective
 
 Graphing library for quality control in event-driven systems.
 
+https://www.youtube.com/watch?v=GqKOQ4X5KUM
+
 This is obviously a work in progress - and subject to major changes in both
 interface and implementation until this README is changed to say otherwise.
 
