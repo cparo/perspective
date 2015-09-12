@@ -20,7 +20,6 @@ package perspective
 import (
 	"image"
 	"math"
-	"math/rand"
 )
 
 type medianLines struct {
@@ -72,9 +71,6 @@ func (v *medianLines) Record(e *EventData) {
 
 	w, h := v.w, v.h
 
-	// Apply resonance-scaled noise as a pre-smoothing measure.
-	x += int(rand.NormFloat64() * v.resonance * float64(w) / 128)
-
 	// Only look at successfully-completed events
 	var frame []float64
 	if e.Status == 0 {
@@ -106,11 +102,35 @@ func (v *medianLines) Render() image.Image {
 		drawYGridLine(vis, int(y))
 	}
 
+	// Find window for smoothing filter.
+	window := 0
+	for n := 1.0; window < w && n > 0.02; window++ {
+		n = n * v.resonance
+	}
+
 	// Find maximum event density
 	nMax := 0.0
 	for x := 0; x < w; x++ {
-		if v.n[x] > nMax {
-			nMax = v.n[x]
+		divisor := 0.0
+		multiplier := v.n[x]
+		if v.n[x] > 0 {
+			divisor++
+		}
+		leftWindow := int(math.Min(float64(window), float64(x)))
+		rightWindow := int(math.Min(float64(window), float64(v.w-x-1)))
+		for i, n := 1, 1.0; i < leftWindow; i++ {
+			n = n * v.resonance
+			multiplier += n * v.n[x-i]
+			divisor += n
+		}
+		for i, n := 1, 1.0; i < rightWindow; i++ {
+			n = n * v.resonance
+			multiplier += n * v.n[x+i]
+			divisor += n
+		}
+		multiplier = multiplier / divisor
+		if multiplier > nMax {
+			nMax = multiplier
 		}
 	}
 
@@ -174,80 +194,74 @@ func (v *medianLines) Render() image.Image {
 		p95[x] = float64(y)
 	}
 
-	// Find window for smoothing filter.
-	window := 0
-	for n := 1.0; window < w && n > 0.02; window++ {
-		n = n * v.resonance
-	}
-
 	// Render (smoothed) median/percentile lines.
 	for x := 0; x < w; x++ {
-		// Ignore x-coordinates with no data.
+		leftWindow := int(math.Min(float64(window), float64(x)))
+		rightWindow := int(math.Min(float64(window), float64(v.w-x-1)))
+		smoothedP05 := p05[x]
+		smoothedP25 := p25[x]
+		smoothedP50 := p50[x]
+		smoothedP75 := p75[x]
+		smoothedP95 := p95[x]
+		divisor := 0.0
 		if v.n[x] > 0 {
-			leftWindow := int(math.Min(float64(window), float64(x)))
-			rightWindow := int(math.Min(float64(window), float64(v.w-x-1)))
-			smoothedP05 := p05[x]
-			smoothedP25 := p25[x]
-			smoothedP50 := p50[x]
-			smoothedP75 := p75[x]
-			smoothedP95 := p95[x]
-			divisor := 1.0
-			for i, n := 1, 1.0; i < leftWindow; i++ {
-				if v.n[x-i] > 0 {
-					n = n * v.resonance
-					smoothedP05 += n * p05[x-i]
-					smoothedP25 += n * p25[x-i]
-					smoothedP50 += n * p50[x-i]
-					smoothedP75 += n * p75[x-i]
-					smoothedP95 += n * p95[x-i]
-					divisor += n
-				}
-			}
-			for i, n := 1, 1.0; i < rightWindow; i++ {
-				if v.n[x+i] > 0 {
-					n = n * v.resonance
-					smoothedP05 += n * p05[x+i]
-					smoothedP25 += n * p25[x+i]
-					smoothedP50 += n * p50[x+i]
-					smoothedP75 += n * p75[x+i]
-					smoothedP95 += n * p95[x+i]
-					divisor += n
-				}
-			}
-			multiplier := v.n[x]
-			for i, n := 1, 1.0; i < leftWindow; i++ {
+			divisor += 1
+		}
+		for i, n := 1, 1.0; i < leftWindow; i++ {
+			if v.n[x-i] > 0 {
 				n = n * v.resonance
-				multiplier += n * v.n[x-i]
+				smoothedP05 += n * p05[x-i]
+				smoothedP25 += n * p25[x-i]
+				smoothedP50 += n * p50[x-i]
+				smoothedP75 += n * p75[x-i]
+				smoothedP95 += n * p95[x-i]
+				divisor += n
 			}
-			for i, n := 1, 1.0; i < rightWindow; i++ {
+		}
+		for i, n := 1, 1.0; i < rightWindow; i++ {
+			if v.n[x+i] > 0 {
 				n = n * v.resonance
-				multiplier += n * v.n[x+i]
+				smoothedP05 += n * p05[x+i]
+				smoothedP25 += n * p25[x+i]
+				smoothedP50 += n * p50[x+i]
+				smoothedP75 += n * p75[x+i]
+				smoothedP95 += n * p95[x+i]
+				divisor += n
 			}
-			multiplier = multiplier / nMax / divisor
-			yMin := int(smoothedP05 / divisor)
-			yMax := int(smoothedP95 / divisor)
-			for y := yMin; y <= yMax; y++ {
-				c := getRGBA(vis, x, y)
-				c.R += uint8(32 * multiplier)
-				c.G += uint8(32 * multiplier)
-				c.B += uint8(64 * multiplier)
-			}
-			yMin = int(smoothedP25 / divisor)
-			yMax = int(smoothedP75 / divisor)
-			for y := yMin; y <= yMax; y++ {
-				c := getRGBA(vis, x, y)
-				c.R += uint8(64 * multiplier)
-				c.G += uint8(64 * multiplier)
-				c.B += uint8(128 * multiplier)
-			}
-			yMin = int(smoothedP50/divisor - 1)
-			yMax = int(smoothedP50/divisor + 1)
-			for y := yMin; y <= yMax; y++ {
-				c := getRGBA(vis, x, y)
-				c.R = uint8(math.Min(float64(c.R)+96*multiplier, saturated))
-				c.G = uint8(math.Min(float64(c.G)+96*multiplier, saturated))
-				c.B = uint8(math.Min(float64(c.B)+192*multiplier, saturated))
-			}
+		}
+		multiplier := v.n[x]
+		for i, n := 1, 1.0; i < leftWindow; i++ {
+			n = n * v.resonance
+			multiplier += n * v.n[x-i]
+		}
+		for i, n := 1, 1.0; i < rightWindow; i++ {
+			n = n * v.resonance
+			multiplier += n * v.n[x+i]
+		}
+		multiplier = multiplier / nMax / divisor
+		yMin := int(smoothedP05 / divisor)
+		yMax := int(smoothedP95 / divisor)
+		for y := yMin; y <= yMax; y++ {
+			c := getRGBA(vis, x, y)
+			c.R += uint8(32 * multiplier)
+			c.G += uint8(32 * multiplier)
+			c.B += uint8(64 * multiplier)
+		}
+		yMin = int(smoothedP25 / divisor)
+		yMax = int(smoothedP75 / divisor)
+		for y := yMin; y <= yMax; y++ {
+			c := getRGBA(vis, x, y)
+			c.R += uint8(64 * multiplier)
+			c.G += uint8(64 * multiplier)
+			c.B += uint8(128 * multiplier)
+		}
+		yMin = int(smoothedP50/divisor - 1)
+		yMax = int(smoothedP50/divisor + 1)
+		for y := yMin; y <= yMax; y++ {
+			c := getRGBA(vis, x, y)
+			c.R = uint8(math.Min(float64(c.R)+96*multiplier, saturated))
+			c.G = uint8(math.Min(float64(c.G)+96*multiplier, saturated))
+			c.B = uint8(math.Min(float64(c.B)+192*multiplier, saturated))
 		}
 	}
 
