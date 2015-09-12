@@ -214,7 +214,16 @@ func (v *medianLines) Render() image.Image {
 					divisor += n
 				}
 			}
-			multiplier := v.n[x] / nMax
+			multiplier := v.n[x]
+			for i, n := 1, 1.0; i < leftWindow; i++ {
+				n = n * v.resonance
+				multiplier += n * v.n[x-i]
+			}
+			for i, n := 1, 1.0; i < rightWindow; i++ {
+				n = n * v.resonance
+				multiplier += n * v.n[x+i]
+			}
+			multiplier = multiplier / nMax / divisor
 			yMin := int(smoothedP05 / divisor)
 			yMax := int(smoothedP95 / divisor)
 			for y := yMin; y <= yMax; y++ {
