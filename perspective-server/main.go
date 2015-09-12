@@ -95,6 +95,14 @@ func init() {
 			out,
 			r)
 	}
+
+	handlers["vis-median-lines"] = func(out http.ResponseWriter, r *options) {
+		visualize(
+			perspective.NewMedianLines(
+				r.w, r.h, r.bg, r.tA, r.tΩ, r.yLog2, r.resonance, r.xGrid),
+			out,
+			r)
+	}
 }
 
 func dumpEventData(out http.ResponseWriter, r *options) {
